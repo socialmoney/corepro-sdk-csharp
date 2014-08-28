@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>CorePro.SDK</title>
+    <authors>SocialMoneyDev</authors>
+    <owners></owners>
+    <description>
+      Visit http://docs.corepro.io for more information.
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+      A .NET SDK for consuming the CorePro API.
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://nuget.org/packages/CorePro.SDK</projectUrl>
+    <iconUrl>https://docs.corepro.io/Content/sdk_icon_corepro.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <copyright>Copyright 2014</copyright>
+    <dependencies>
+      <group>
+        <dependency id="Newtonsoft.Json" version="6.0.4" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags>CorePro .NET API SDK 'Social Money'</tags>
+  </metadata>
+</package>
