@@ -1,5 +1,6 @@
 ﻿using CorePro.SDK.Models;
 using CorePro.SDK.Utils;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +14,19 @@ namespace CorePro.SDK
         public Program()
             : base()
         {
-            InterestRates = new List<ProgramInterestRate>();
+            ECodeProducts = new SortedDictionary<string, ProgramECode>();
+            CheckingProducts = new SortedDictionary<string, ProgramChecking>();
+            SavingsProducts = new SortedDictionary<string, ProgramSavings>();
+            PrepaidProducts = new SortedDictionary<string, ProgramPrepaid>();
         }
         public string Name { get; set; }
         public string VerificationType { get; set; }
         public string TimeZone { get; set; }
 
-        public decimal RegDFeeAmount { get; set; }
-        public decimal RegDMonthlyTransactionWithdrawCountMax { get; set; }
-
-        public ProgramLimit PerTransactionWithdrawLimit { get; set; }
         public ProgramLimit PerUserDailyWithdrawLimit { get; set; }
         public ProgramLimit PerUserMonthlyWithdrawLimit { get; set; }
         public ProgramLimit PerProgramDailyWithdrawLimit { get; set; }
 
-        public ProgramLimit PerTransactionDepositLimit { get; set; }
         public ProgramLimit PerUserDailyDepositLimit { get; set; }
         public ProgramLimit PerUserMonthlyDepositLimit { get; set; }
         public ProgramLimit PerProgramDailyDepositLimit { get; set; }
@@ -35,11 +34,14 @@ namespace CorePro.SDK
         public string Website { get; set; }
         public bool IsInternalToInternalTransferEnabled { get; set; }
         public int DecimalCount { get; set; }
-        public bool IsInterestEnabled { get; set; }
-        public string AllowedAccountType { get; set; }
-        public bool IsRecurringContributionEnabled { get; set; }
+        public List<string> ValidAccountTypes { get; set; }
 
-        public List<ProgramInterestRate> InterestRates { get; set; }
+        public int ExternalAccountCountMax { get; set; }
+
+        public SortedDictionary<string, ProgramECode> ECodeProducts { get; set; }
+        public SortedDictionary<string, ProgramChecking> CheckingProducts { get; set; }
+        public SortedDictionary<string, ProgramSavings> SavingsProducts { get; set; }
+        public SortedDictionary<string, ProgramPrepaid> PrepaidProducts { get; set; }
 
         public DateTimeOffset FilledDate { get; set; }
 
@@ -49,6 +51,7 @@ namespace CorePro.SDK
             var rv = Requestor.Get<Program>("program/get", connection, userDefinedObjectForLogging);
             return rv;
         }
+
 
     }
 }

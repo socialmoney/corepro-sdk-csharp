@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace CorePro.SDK.Utils
 {
-    internal class Requestor
+    public class Requestor
     {
 
         public static bool CertificateCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
@@ -28,7 +29,11 @@ namespace CorePro.SDK.Utils
         }
 
 
-        const string SDK_USER_AGENT = "CorePro .NET SDK v0.1";
+        public static string SdkUserAgent {
+            get {
+                return "CorePro .NET SDK v " + Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
+        }
 
 
         public static long SecondsSinceUnixEpoch
@@ -209,7 +214,7 @@ namespace CorePro.SDK.Utils
         /// <param name="relativeUrl"></param>
         /// <param name="connection">Info to put into the Authorization header.</param>
         /// <returns></returns>
-        internal static TResponse Get<TResponse>(string relativeUrl, Connection connection, object userDefinedObject) where TResponse : class
+        public static TResponse Get<TResponse>(string relativeUrl, Connection connection, object userDefinedObject) where TResponse : class
         {
             try
             {
@@ -219,7 +224,7 @@ namespace CorePro.SDK.Utils
                 var absoluteUrl = "https://" + connection.DomainName + "/" + relativeUrl;
                 var req = (HttpWebRequest)WebRequest.Create(absoluteUrl);
                 req.Method = "GET";
-                req.UserAgent = SDK_USER_AGENT;
+                req.UserAgent = SdkUserAgent;
                 req.Accept = "application/json; charset=utf-8";
                 req.ContentType = "application/json; charset=utf-8";
                 if (connection != null)
@@ -236,7 +241,7 @@ namespace CorePro.SDK.Utils
 
         }
 
-        internal static object Download(string relativeUrl, Connection connection, object userDefinedObjectForLogging = null)
+        public static object Download(string relativeUrl, Connection connection, object userDefinedObjectForLogging = null)
         {
             try { 
                 // required for ssl
@@ -245,7 +250,7 @@ namespace CorePro.SDK.Utils
                 var absoluteUrl = "https://" + connection.DomainName + "/" + relativeUrl;
                 var req = (HttpWebRequest)WebRequest.Create(absoluteUrl);
                 req.Method = "GET";
-                req.UserAgent = SDK_USER_AGENT;
+                req.UserAgent = SdkUserAgent;
 
                 req.Accept = "text/csv; charset=utf-8";
                 req.ContentType = "text/csv; charset=utf-8";
@@ -274,7 +279,7 @@ namespace CorePro.SDK.Utils
         /// <param name="connection">Info to put into the Authorization header.</param>
         /// <param name="body"></param>
         /// <returns></returns>
-        internal static TResponse Post<TResponse>(string relativeUrl, Connection connection, object body, object userDefinedObjectForLogging) where TResponse : class
+        public static TResponse Post<TResponse>(string relativeUrl, Connection connection, object body, object userDefinedObjectForLogging) where TResponse : class
         {
             try { 
                 var absoluteUrl = "https://" + connection.DomainName + "/" + relativeUrl;
@@ -283,7 +288,7 @@ namespace CorePro.SDK.Utils
                 ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(CertificateCallback);
 
                 request.Method = "POST";
-                request.UserAgent = SDK_USER_AGENT;
+                request.UserAgent = SdkUserAgent;
                 request.Accept = "application/json; charset=utf-8";
                 request.ContentType = "application/json; charset=utf-8";
 

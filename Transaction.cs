@@ -39,6 +39,9 @@ namespace CorePro.SDK
 
         public bool? IsCredit { get; set; }
 
+        public string FeeCode { get; set; }
+        public string FeeDescription { get; set; }
+
         /// <summary>
         /// Lists all transactions for given user for all accounts for all time.  Optionally can restrict to a given account or a given range of dates.
         /// </summary>
@@ -71,17 +74,17 @@ namespace CorePro.SDK
             return rv;
         }
 
-        //public static Transaction GetByTag(int? customerId, string tag, Connection connection = null, object userDefinedObjectForLogging = null)
-        //{
-        //    connection = connection ?? Connection.CreateFromConfig();
-        //    return Requestor.Get<Transaction>(String.Format("transaction/getbytag/{0}/{1}", customerId, tag), connection, userDefinedObjectForLogging);
-        //}
+        public static List<Transaction> GetByTag(int? customerId, string tag, Connection connection = null, object userDefinedObjectForLogging = null)
+        {
+            connection = connection ?? Connection.CreateFromConfig();
+            return Requestor.Get<List<Transaction>>(String.Format("transaction/getbytag/{0}/{1}", customerId, tag), connection, userDefinedObjectForLogging);
+        }
 
-        //public static Transaction Get(int? customerId, long? transactionId, Connection connection = null, object userDefinedObjectForLogging = null)
-        //{
-        //    connection = connection ?? Connection.CreateFromConfig();
-        //    return Requestor.Get<Transaction>(String.Format("transaction/get/{0}/{1}", customerId, transactionId), connection, userDefinedObjectForLogging);
-        //}
+        public static List<Transaction> Get(int? customerId, long? transactionId, Connection connection = null, object userDefinedObjectForLogging = null)
+        {
+            connection = connection ?? Connection.CreateFromConfig();
+            return Requestor.Get<List<Transaction>>(String.Format("transaction/get/{0}/{1}", customerId, transactionId), connection, userDefinedObjectForLogging);
+        }
 
 
     }
