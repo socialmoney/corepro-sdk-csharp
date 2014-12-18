@@ -36,7 +36,9 @@ namespace CorePro.SDK
         public int DecimalCount { get; set; }
         public List<string> ValidAccountTypes { get; set; }
 
-        public int ExternalAccountCountMax { get; set; }
+        public int PerUserExternalAccountCountMax { get; set; }
+        public int PerUserAccountCountMax { get; set; }
+        public decimal PerUserTotalAccountBalanceMax { get; set; }
 
         public SortedDictionary<string, ProgramECode> ECodeProducts { get; set; }
         public SortedDictionary<string, ProgramChecking> CheckingProducts { get; set; }
