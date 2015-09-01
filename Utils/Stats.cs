@@ -105,7 +105,14 @@ namespace CorePro.SDK.Utils
             try
             {
                 rv = callback();
-                return rv.Data;
+                if (rv != null)
+                {
+                    return rv.Data;
+                }
+                else
+                {
+                    return default(T);
+                }
             }
             finally
             {
@@ -119,6 +126,26 @@ namespace CorePro.SDK.Utils
             }
         }
 
+        internal async static Task<Envelope<T>> RecordAsync<T>(CancellationToken cancellationToken, Func<Task<Envelope<T>>> callback, HttpWebRequest req)
+        {
+            long start = DateTime.Now.Ticks;
+            Envelope<T> rv = null;
+            try
+            {
+                rv = await callback();
+                return rv;
+            }
+            finally
+            {
+                if (req != null)
+                {
+                    var end = DateTime.Now.Ticks;
+                    var duration = Math.Round(new TimeSpan(end - start).TotalMilliseconds, 2);
+                    var stat = recordUrlStats(req.RequestUri, duration, rv);
+                    __lastRequested[Thread.CurrentThread.ManagedThreadId] = stat;
+                }
+            }
+        }
     }
 
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CorePro.SDK
@@ -26,6 +27,14 @@ namespace CorePro.SDK
             connection = connection ?? Connection.CreateFromConfig();
             var rv = Requestor.Get<List<Document>>(String.Format("document/list/{0}/{1}", cultureName, documentType), connection, userDefinedObjectForLogging);
             return rv;
+        }
+
+
+        public async static Task<List<Document>> ListAsync(CancellationToken cancellationToken, string cultureName, string documentType = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        {
+            connection = connection ?? Connection.CreateFromConfig();
+            var rv = await Requestor.GetAsync<List<Document>>(cancellationToken, String.Format("document/list/{0}/{1}", cultureName, documentType), connection, userDefinedObjectForLogging);
+            return rv.Data;
         }
 
     }

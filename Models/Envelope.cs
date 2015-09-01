@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CorePro.SDK.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CorePro.SDK.Models
 {
-    internal class Envelope<T>
+    public class Envelope<T>
     {
         public Envelope()
         {
@@ -18,5 +19,10 @@ namespace CorePro.SDK.Models
         public List<Error> Errors { get; private set; }
         public int Status { get; set; }
         public Guid? RequestId { get; set; }
+
+        public string ToJson()
+        {
+            return new JsonSerializer().Serialize(this);
+        }
     }
 }

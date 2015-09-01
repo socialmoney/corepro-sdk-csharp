@@ -17,5 +17,6 @@ namespace CorePro.SDK.Models
         /// Gets or sets a user-defined object for third-party code to pass values through this SDK.
         /// </summary>
         public object UserDefined { get; set; }
+
     }
 }

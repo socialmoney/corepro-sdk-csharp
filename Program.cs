@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CorePro.SDK
@@ -47,6 +48,8 @@ namespace CorePro.SDK
 
         public DateTimeOffset FilledDate { get; set; }
 
+        public Bank Bank { get; set; }
+
         public static Program Get(Connection connection = null, object userDefinedObjectForLogging = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
@@ -54,6 +57,13 @@ namespace CorePro.SDK
             return rv;
         }
 
+
+        public async static Task<Program> GetAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        {
+            connection = connection ?? Connection.CreateFromConfig();
+            var rv = await Requestor.GetAsync<Program>(cancellationToken, "program/get", connection, userDefinedObjectForLogging);
+            return rv.Data;
+        }
 
     }
 }
