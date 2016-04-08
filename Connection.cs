@@ -3,12 +3,14 @@ using CorePro.SDK.Utils;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CorePro.SDK
 {
+    [DebuggerDisplay("DomainName={DomainName}, ApiKey={ApiKey}")]
     public class Connection
     {
 
@@ -33,6 +35,17 @@ namespace CorePro.SDK
                 return value;
             else
                 return value.Replace("https://", "").Replace("http://", "").Replace("//", "").Split('/')[0];
+        }
+
+        public Connection(string domainName, string apiKey = null, string apiSecret = null)
+        {
+            this.DomainName = domainName;
+            this.ApiKey = apiKey;
+            this.ApiSecret = apiSecret;
+        }
+        public Connection()
+        {
+
         }
 
         private string _domainName;

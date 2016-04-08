@@ -65,6 +65,10 @@ namespace CorePro.SDK
 
         public DateTimeOffset? LastActivityDate { get; set;}
 
+        public DateTimeOffset? DocumentsAcceptedDate { get; set; }
+        public DateTimeOffset? ExpiredDate { get; set; }
+        public DateTimeOffset? ManualReviewDate { get; set; }
+
         #region Synchronous
         public static List<Customer> ListAll(int? pageNumber, int? pageSize, Connection connection = null, object userDefinedObjectForLogging = null)
         {
@@ -169,7 +173,13 @@ namespace CorePro.SDK
             return rv;
         }
 
+        [Obsolete("Please use Customer.Archive() instead.")]
         public static CustomerIdOnly Deactivate(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        {
+            return new Customer(customerId).Archive(connection, userDefinedObjectForLogging);
+        }
+
+        public static CustomerIdOnly Archive(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
         {
             return new Customer(customerId).Archive(connection, userDefinedObjectForLogging);
         }
@@ -266,10 +276,42 @@ namespace CorePro.SDK
             return rv;
         }
 
-        public static CustomerIdOnly Update(int? customerId,
+        public static CustomerIdOnly Update(int? customerId, string firstName = null, string middleName = null, string lastName = null, string suffix = null, DateTimeOffset? birthDate = null, string taxId = null,
+            string driversLicenseNumber = null, string driversLicenseState = null, DateTimeOffset? driversLicenseIssueDate = null, DateTimeOffset? driversLicenseExpireDate = null,
+            string passportNumber = null, string passportCountry = null, DateTimeOffset? passportIssueDate = null, DateTimeOffset? passportExpireDate = null,
+            string emailAddress = null, string gender = null, string culture = null, bool? isSubjectToBackupWithholding = null, bool? isOptedInToBankCommunication = null,
+            string tag = null, string customField1 = null, string customField2 = null, string customField3 = null, string customField4 = null, string customField5 = null,
+            List<CustomerAddress> addresses = null, List<CustomerPhone> phones = null,
             Connection connection = null, object userDefinedObjectForLogging = null)
         {
             var c = new Customer(customerId);
+            c.FirstName = firstName;
+            c.MiddleName = middleName;
+            c.LastName = lastName;
+            c.Suffix = suffix;
+            c.BirthDate = birthDate;
+            c.TaxId = taxId;
+            c.DriversLicenseNumber = driversLicenseNumber;
+            c.DriversLicenseState = driversLicenseState;
+            c.DriversLicenseIssueDate = driversLicenseIssueDate;
+            c.DriversLicenseExpireDate = driversLicenseExpireDate;
+            c.PassportNumber = passportNumber;
+            c.PassportCountry = passportCountry;
+            c.PassportIssueDate = passportIssueDate;
+            c.PassportExpireDate = passportExpireDate;
+            c.EmailAddress = emailAddress;
+            c.Gender = gender;
+            c.Culture = culture;
+            c.IsSubjectToBackupWithholding = isSubjectToBackupWithholding;
+            c.IsOptedInToBankCommunication = isOptedInToBankCommunication;
+            c.Tag = tag;
+            c.CustomField1 = customField1;
+            c.CustomField2 = customField2;
+            c.CustomField3 = customField3;
+            c.CustomField4 = customField4;
+            c.CustomField5 = customField5;
+            c.Addresses = addresses;
+            c.Phones = phones;
             return c.Update(connection, userDefinedObjectForLogging);
         }
 
@@ -391,7 +433,13 @@ namespace CorePro.SDK
             return rv.Data;
         }
 
+        [Obsolete("Please use Customer.ArchiveAsync() instead.")]
         public async static Task<CustomerIdOnly> DeactivateAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        {
+            return (await new Customer(customerId).ArchiveAsync(cancellationToken, connection, userDefinedObjectForLogging));
+        }
+
+        public async static Task<CustomerIdOnly> ArchiveAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
         {
             return (await new Customer(customerId).ArchiveAsync(cancellationToken, connection, userDefinedObjectForLogging));
         }
@@ -488,10 +536,42 @@ namespace CorePro.SDK
             return rv.Data;
         }
 
-        public async static Task<Customer> UpdateAsync(CancellationToken cancellationToken, int? customerId,
+        public async static Task<Customer> UpdateAsync(CancellationToken cancellationToken, int? customerId, string firstName = null, string middleName = null, string lastName = null, string suffix = null, DateTimeOffset? birthDate = null, string taxId = null,
+            string driversLicenseNumber = null, string driversLicenseState = null, DateTimeOffset? driversLicenseIssueDate = null, DateTimeOffset? driversLicenseExpireDate = null,
+            string passportNumber = null, string passportCountry = null, DateTimeOffset? passportIssueDate = null, DateTimeOffset? passportExpireDate = null,
+            string emailAddress = null, string gender = null, string culture = null, bool? isSubjectToBackupWithholding = null, bool? isOptedInToBankCommunication = null,
+            string tag = null, string customField1 = null, string customField2 = null, string customField3 = null, string customField4 = null, string customField5 = null,
+            List<CustomerAddress> addresses = null, List<CustomerPhone> phones = null,
             Connection connection = null, object userDefinedObjectForLogging = null)
         {
             var c = new Customer(customerId);
+            c.FirstName = firstName;
+            c.MiddleName = middleName;
+            c.LastName = lastName;
+            c.Suffix = suffix;
+            c.BirthDate = birthDate;
+            c.TaxId = taxId;
+            c.DriversLicenseNumber = driversLicenseNumber;
+            c.DriversLicenseState = driversLicenseState;
+            c.DriversLicenseIssueDate = driversLicenseIssueDate;
+            c.DriversLicenseExpireDate = driversLicenseExpireDate;
+            c.PassportNumber = passportNumber;
+            c.PassportCountry = passportCountry;
+            c.PassportIssueDate = passportIssueDate;
+            c.PassportExpireDate = passportExpireDate;
+            c.EmailAddress = emailAddress;
+            c.Gender = gender;
+            c.Culture = culture;
+            c.IsSubjectToBackupWithholding = isSubjectToBackupWithholding;
+            c.IsOptedInToBankCommunication = isOptedInToBankCommunication;
+            c.Tag = tag;
+            c.CustomField1 = customField1;
+            c.CustomField2 = customField2;
+            c.CustomField3 = customField3;
+            c.CustomField4 = customField4;
+            c.CustomField5 = customField5;
+            c.Addresses = addresses;
+            c.Phones = phones;
             return await c.UpdateAsync(cancellationToken, connection, userDefinedObjectForLogging);
         }
 

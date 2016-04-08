@@ -82,7 +82,7 @@ namespace CorePro.SDK
 
         public async virtual Task<List<Account>> ListAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
         {
-            return (await ListAsyncEnvelope(cancellationToken)).Data;
+            return (await ListAsyncEnvelope(cancellationToken, connection, userDefinedObjectForLogging)).Data;
         }
 
         public async virtual Task<Envelope<List<Account>>> ListAsyncEnvelope(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)

@@ -50,6 +50,8 @@ namespace CorePro.SDK
         public string CustomField4 { get; set; }
         public string CustomField5 { get; set; }
 
+        public DateTimeOffset? LastVerifySentDate { get; set; }
+        public DateTimeOffset? LastVerifyExpiredDate { get; set; }
 
         #region Synchronous
 

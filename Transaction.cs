@@ -30,6 +30,7 @@ namespace CorePro.SDK
         public string TypeCode { get; set; }
         public string Status { get; set; }
         public decimal? Amount { get; set; }
+        public bool? IsAvailable { get; set; }
         public DateTimeOffset? SettledDate { get; set; }
         public DateTimeOffset? VoidedDate { get; set; }
         public string NachaDescription { get; set; }
@@ -43,6 +44,8 @@ namespace CorePro.SDK
         public string FeeCode { get; set; }
         public string FeeDescription { get; set; }
 
+        public string InstitutionName { get; set; }
+        public string CustomField1 { get; set; }
 
         #region Synchronous
         /// <summary>
