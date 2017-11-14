@@ -11,14 +11,26 @@ namespace CorePro.SDK
 {
     public class Customer : ModelBase
     {
-        public Customer()
+        public Customer() : base()
         {
             Phones = new List<CustomerPhone>();
             Addresses = new List<CustomerAddress>();
+            Accounts = new List<Account>();
+            ExternalAccounts = new List<ExternalAccount>();
+            Cards = new List<Card>();
         }
 
-        public Customer(int? customerId)
-            : this()
+        public Customer(RequestMetaData metaData) : base(metaData)
+        {
+            Phones = new List<CustomerPhone>();
+            Addresses = new List<CustomerAddress>();
+            Accounts = new List<Account>();
+            ExternalAccounts = new List<ExternalAccount>();
+            Cards = new List<Card>();
+        }
+
+        public Customer(int? customerId, RequestMetaData metaData = null)
+            : this(metaData)
         {
             this.CustomerId = customerId;
         }
@@ -36,11 +48,14 @@ namespace CorePro.SDK
         public string Status { get; set; }
         public DateTimeOffset? CreatedDate { get; set; }
         public string TaxId { get; set; }
+        public string TaxIdMasked { get; set; }
         public string DriversLicenseNumber { get; set; }
+        public string DriversLicenseNumberMasked { get; set; }
         public string DriversLicenseState { get; set; }
         public DateTimeOffset? DriversLicenseIssueDate { get; set; }
         public DateTimeOffset? DriversLicenseExpireDate { get; set; }
         public string PassportNumber { get; set; }
+        public string PassportNumberMasked { get; set; }
         public string PassportCountry { get; set; }
         public DateTimeOffset? PassportIssueDate { get; set; }
         public DateTimeOffset? PassportExpireDate { get; set; }
@@ -69,16 +84,60 @@ namespace CorePro.SDK
         public DateTimeOffset? ExpiredDate { get; set; }
         public DateTimeOffset? ManualReviewDate { get; set; }
 
-        #region Synchronous
-        public static List<Customer> ListAll(int? pageNumber, int? pageSize, Connection connection = null, object userDefinedObjectForLogging = null)
+        public DateTimeOffset? LastModifiedDate { get; set; }
+
+        public List<Card> Cards { get; set; }
+
+        public int? TotalPhones
         {
-            return new Customer(0).List(pageNumber, pageSize, connection, userDefinedObjectForLogging);
+            get
+            {
+                return Phones?.Count;
+            }
+        }
+        public int? TotalAddresses
+        {
+            get
+            {
+                return Addresses?.Count;
+            }
         }
 
-        public virtual List<Customer> List(int? pageNumber, int? pageSize, Connection connection = null, object userDefinedObjectForLogging = null)
+        public int? TotalAccounts
+        {
+            get
+            {
+                return Accounts?.Count;
+            }
+        }
+
+        public int? TotalExternalAccounts
+        {
+            get
+            {
+                return ExternalAccounts?.Count;
+            }
+        }
+
+        public int? TotalCards
+        {
+            get
+            {
+                return Cards?.Count;
+            }
+        }
+
+        
+        #region Synchronous
+        public static List<Customer> ListAll(int? pageNumber, int? pageSize, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
+        {
+            return new Customer(0, metaData).List(pageNumber, pageSize, connection, userDefinedObjectForLogging, metaData);
+        }
+
+        public virtual List<Customer> List(int? pageNumber, int? pageSize, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<List<Customer>>(String.Format("customer/list?pageNumber={0}&pageSize={1}", pageNumber, pageSize), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<List<Customer>>(String.Format("customer/list?pageNumber={0}&pageSize={1}", pageNumber, pageSize), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             return rv;
         }
 
@@ -86,9 +145,9 @@ namespace CorePro.SDK
             string tag = null, string gender = "U", string firstName = null, string middleName = null, string lastName = null, string taxId = null, DateTimeOffset? birthDate = null, string emailAddress = null,
             string driversLicenseNumber = null, string driversLicenseState = null, DateTimeOffset? driversLicenseExpireDate = null, string passportNumber = null, string passportCountry = null,
             List<CustomerAddress> addresses = null, List<CustomerPhone> phones = null,
-            Connection connection = null, object userDefinedObjectForLogging = null, string suffix = null, string customField1 = null, string customField2 = null, string customField3 = null, string customField4 = null, string customField5 = null)
+            Connection connection = null, object userDefinedObjectForLogging = null, string suffix = null, string customField1 = null, string customField2 = null, string customField3 = null, string customField4 = null, string customField5 = null, RequestMetaData metaData = null)
         {
-            var c = new Customer();
+            var c = new Customer(metaData);
             c.Culture = culture;
             c.IsSubjectToBackupWithholding = isSubjectToBackupWithholding;
             c.IsOptedInToBankCommunication = isOptedInToBankCommunication;
@@ -115,7 +174,7 @@ namespace CorePro.SDK
             c.CustomField4 = customField4;
             c.CustomField5 = customField5;
 
-            return c.Create(connection, userDefinedObjectForLogging);
+            return c.Create(connection, userDefinedObjectForLogging, metaData);
         }
 
 
@@ -124,19 +183,19 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public virtual Customer Create(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual Customer Create(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var newCustomer = Requestor.Post<Customer>("customer/create", connection, this, userDefinedObjectForLogging);
-            var rv = Customer.Get((int)newCustomer.CustomerId, connection, userDefinedObjectForLogging);
+            var newCustomer = Requestor.Post<Customer>("customer/create", connection, this, userDefinedObjectForLogging, metaData);
+            var rv = Customer.Get((int)newCustomer.CustomerId, connection, userDefinedObjectForLogging, metaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv;
         }
 
-        public static CustomerResponse Initiate(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static CustomerResponse Initiate(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return new Customer(customerId).Initiate(connection, userDefinedObjectForLogging);
+            return new Customer(customerId).Initiate(connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -144,18 +203,18 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public virtual CustomerResponse Initiate(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual CustomerResponse Initiate(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Post<CustomerResponse>("customer/initiate", connection, this, userDefinedObjectForLogging);
+            var rv = Requestor.Post<CustomerResponse>("customer/initiate", connection, this, userDefinedObjectForLogging, metaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv;
         }
 
-        public static CustomerResponse Verify(int? customerId, CustomerVerifyRequest request, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static CustomerResponse Verify(int? customerId, CustomerVerifyRequest request, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return new Customer(customerId).Verify(request, connection, userDefinedObjectForLogging);
+            return new Customer(customerId).Verify(request, connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -164,39 +223,41 @@ namespace CorePro.SDK
         /// <param name="request"></param>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public CustomerResponse Verify(CustomerVerifyRequest request, Connection connection = null, object userDefinedObjectForLogging = null)
+        public CustomerResponse Verify(CustomerVerifyRequest request, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Post<CustomerResponse>("customer/verify", connection, request, userDefinedObjectForLogging);
+            var rv = Requestor.Post<CustomerResponse>("customer/verify", connection, request, userDefinedObjectForLogging, metaData);
             if (rv != null)
                 request.RequestId = rv.RequestId;
             return rv;
         }
 
         [Obsolete("Please use Customer.Archive() instead.")]
-        public static CustomerIdOnly Deactivate(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static CustomerIdOnly Deactivate(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return new Customer(customerId).Archive(connection, userDefinedObjectForLogging);
+            return new Customer(customerId).Archive(connection, userDefinedObjectForLogging, metaData);
         }
 
-        public static CustomerIdOnly Archive(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static CustomerIdOnly Archive(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return new Customer(customerId).Archive(connection, userDefinedObjectForLogging);
+            return new Customer(customerId).Archive(connection, userDefinedObjectForLogging, metaData);
         }
 
-        public virtual CustomerIdOnly Archive(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual CustomerIdOnly Archive(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Post<CustomerIdOnly>("customer/archive", connection, this, userDefinedObjectForLogging);
+            var rv = Requestor.Post<CustomerIdOnly>("customer/archive", connection, this, userDefinedObjectForLogging, metaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv;
         }
 
 
-        public static List<Customer> Search(string tag = null, string taxId = null, string passportNumber = null, string driversLicenseNumber = null, DateTimeOffset? dateOfBirth = null, string emailAddress = null, string lastName = null, string firstName = null, int? pageNumber = 0, int? pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<Customer> Search(string tag = null, string taxId = null, string passportNumber = null, string driversLicenseNumber = null, DateTimeOffset? dateOfBirth = null, 
+            string emailAddress = null, string lastName = null, string firstName = null, int? pageNumber = 0, int? pageSize = 200, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var c = new Customer(0);
+            var c = new Customer(0, metaData);
             c.Tag = tag;
             c.TaxId = taxId;
             c.PassportNumber = passportNumber;
@@ -206,7 +267,7 @@ namespace CorePro.SDK
             c.LastName = lastName;
             c.FirstName = firstName;
 
-            return c.Search(pageNumber, pageSize, connection, userDefinedObjectForLogging);
+            return c.Search(pageNumber, pageSize, connection, userDefinedObjectForLogging, metaData);
 
         }
 
@@ -222,55 +283,55 @@ namespace CorePro.SDK
         /// <param name="firstName"></param>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public virtual List<Customer> Search(int? pageNumber = 0, int? pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual List<Customer> Search(int? pageNumber = 0, int? pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
 
-            var rv = Requestor.Post<List<Customer>>(String.Format("customer/search?pageNumber={0}&pageSize={1}", pageNumber, pageSize), connection, this, userDefinedObjectForLogging);
+            var rv = Requestor.Post<List<Customer>>(String.Format("customer/search?pageNumber={0}&pageSize={1}", pageNumber, pageSize), connection, this, userDefinedObjectForLogging, metaData);
             return rv;
         }
 
-        public static Customer Get(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static Customer Get(int? customerId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return new Customer(customerId).Get(connection, userDefinedObjectForLogging);
+            return new Customer(customerId, metaData).Get(connection, userDefinedObjectForLogging, metaData);
         }
 
-        public virtual Customer Get(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual Customer Get(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<Customer>(String.Format("customer/get/{0}", this.CustomerId), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<Customer>(String.Format("customer/get/{0}", this.CustomerId), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv;
         }
 
-        public static Customer GetByTag(string tag = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static Customer GetByTag(string tag = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var c= new Customer(0);
+            var c= new Customer(0, metaData);
             c.Tag = tag;
-            return c.GetByTag(connection, userDefinedObjectForLogging);
+            return c.GetByTag(connection, userDefinedObjectForLogging, metaData);
         }
 
-        public virtual Customer GetByTag(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual Customer GetByTag(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<Customer>(String.Format("customer/getbytag/{0}", this.Tag), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<Customer>(String.Format("customer/getbytag/?tag={0}", Uri.EscapeDataString(this.Tag + "")), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv;
         }
 
-        public static Customer GetByEmail(string emailAddress = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static Customer GetByEmail(string emailAddress = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var c = new Customer(0);
+            var c = new Customer(0, metaData);
             c.EmailAddress = emailAddress;
-            return c.GetByEmail(connection, userDefinedObjectForLogging);
+            return c.GetByEmail(connection, userDefinedObjectForLogging, metaData);
         }
 
-        public virtual Customer GetByEmail(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual Customer GetByEmail(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<Customer>(String.Format("customer/getbyemail/{0}", this.EmailAddress), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<Customer>(String.Format("customer/getbyemail/?emailaddress={0}", Uri.EscapeDataString(this.EmailAddress + "")), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv;
@@ -282,9 +343,9 @@ namespace CorePro.SDK
             string emailAddress = null, string gender = null, string culture = null, bool? isSubjectToBackupWithholding = null, bool? isOptedInToBankCommunication = null,
             string tag = null, string customField1 = null, string customField2 = null, string customField3 = null, string customField4 = null, string customField5 = null,
             List<CustomerAddress> addresses = null, List<CustomerPhone> phones = null,
-            Connection connection = null, object userDefinedObjectForLogging = null)
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var c = new Customer(customerId);
+            var c = new Customer(customerId, metaData);
             c.FirstName = firstName;
             c.MiddleName = middleName;
             c.LastName = lastName;
@@ -312,7 +373,7 @@ namespace CorePro.SDK
             c.CustomField5 = customField5;
             c.Addresses = addresses;
             c.Phones = phones;
-            return c.Update(connection, userDefinedObjectForLogging);
+            return c.Update(connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -320,10 +381,10 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public virtual CustomerIdOnly Update(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual CustomerIdOnly Update(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Post<CustomerIdOnly>("customer/update", connection, this, userDefinedObjectForLogging);
+            var rv = Requestor.Post<CustomerIdOnly>("customer/update", connection, this, userDefinedObjectForLogging, metaData ?? this.MetaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv;
@@ -331,15 +392,15 @@ namespace CorePro.SDK
         #endregion Synchronous
 
         #region Async
-        public async static Task<List<Customer>> ListAllAsync(CancellationToken cancellationToken, int? pageNumber, int? pageSize, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<Customer>> ListAllAsync(CancellationToken cancellationToken, int? pageNumber, int? pageSize, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return await new Customer(0).ListAsync(cancellationToken, pageNumber, pageSize, connection, userDefinedObjectForLogging);
+            return await new Customer(0, metaData).ListAsync(cancellationToken, pageNumber, pageSize, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public async virtual Task<List<Customer>> ListAsync(CancellationToken cancellationToken, int? pageNumber, int? pageSize, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<List<Customer>> ListAsync(CancellationToken cancellationToken, int? pageNumber, int? pageSize, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<List<Customer>>(cancellationToken, String.Format("customer/list?pageNumber={0}&pageSize={1}", pageNumber, pageSize), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<List<Customer>>(cancellationToken, String.Format("customer/list?pageNumber={0}&pageSize={1}", pageNumber, pageSize), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             return rv.Data;
         }
 
@@ -347,9 +408,10 @@ namespace CorePro.SDK
             string tag = null, string gender = "U", string firstName = null, string middleName = null, string lastName = null, string taxId = null, DateTimeOffset? birthDate = null, string emailAddress = null,
             string driversLicenseNumber = null, string driversLicenseState = null, DateTimeOffset? driversLicenseExpireDate = null, string passportNumber = null, string passportCountry = null,
             List<CustomerAddress> addresses = null, List<CustomerPhone> phones = null,
-            Connection connection = null, object userDefinedObjectForLogging = null, string suffix = null, string customField1 = null, string customField2 = null, string customField3 = null, string customField4 = null, string customField5 = null)
+            Connection connection = null, object userDefinedObjectForLogging = null, string suffix = null, string customField1 = null, string customField2 = null, string customField3 = null, string customField4 = null, string customField5 = null, 
+            RequestMetaData metaData = null)
         {
-            var c = new Customer();
+            var c = new Customer(metaData);
             c.Culture = culture;
             c.IsSubjectToBackupWithholding = isSubjectToBackupWithholding;
             c.IsOptedInToBankCommunication = isOptedInToBankCommunication;
@@ -376,7 +438,7 @@ namespace CorePro.SDK
             c.CustomField4 = customField4;
             c.CustomField5 = customField5;
 
-            return await c.CreateAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await c.CreateAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
 
@@ -385,19 +447,19 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public async virtual Task<Customer> CreateAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<Customer> CreateAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var newCustomer = (await Requestor.PostAsync<Customer>(cancellationToken, "customer/create", connection, this, userDefinedObjectForLogging)).Data;
-            var rv = Customer.Get(newCustomer.CustomerId, connection, userDefinedObjectForLogging);
+            var newCustomer = (await Requestor.PostAsync<Customer>(cancellationToken, "customer/create", connection, this, userDefinedObjectForLogging, metaData)).Data;
+            var rv = Customer.Get(newCustomer.CustomerId, connection, userDefinedObjectForLogging, metaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv;
         }
 
-        public async static Task<CustomerResponse> InitiateAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<CustomerResponse> InitiateAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return await new Customer(customerId).InitiateAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await new Customer(customerId, metaData).InitiateAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -405,18 +467,18 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public async virtual Task<CustomerResponse> InitiateAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<CustomerResponse> InitiateAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.PostAsync<CustomerResponse>(cancellationToken, "customer/initiate", connection, this, userDefinedObjectForLogging);
+            var rv = await Requestor.PostAsync<CustomerResponse>(cancellationToken, "customer/initiate", connection, this, userDefinedObjectForLogging, metaData ?? this.MetaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv.Data;
         }
 
-        public async static Task<CustomerResponse> VerifyAsync(CancellationToken cancellationToken, int? customerId, CustomerVerifyRequest request, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<CustomerResponse> VerifyAsync(CancellationToken cancellationToken, int? customerId, CustomerVerifyRequest request, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return await new Customer(customerId).VerifyAsync(cancellationToken, request, connection, userDefinedObjectForLogging);
+            return await new Customer(customerId, metaData).VerifyAsync(cancellationToken, request, connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -425,38 +487,39 @@ namespace CorePro.SDK
         /// <param name="request"></param>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public async Task<CustomerResponse> VerifyAsync(CancellationToken cancellationToken, CustomerVerifyRequest request, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async Task<CustomerResponse> VerifyAsync(CancellationToken cancellationToken, CustomerVerifyRequest request, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.PostAsync<CustomerResponse>(cancellationToken, "customer/verify", connection, request, userDefinedObjectForLogging);
+            var rv = await Requestor.PostAsync<CustomerResponse>(cancellationToken, "customer/verify", connection, request, userDefinedObjectForLogging, metaData);
             request.RequestId = rv.RequestId;
             return rv.Data;
         }
 
         [Obsolete("Please use Customer.ArchiveAsync() instead.")]
-        public async static Task<CustomerIdOnly> DeactivateAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<CustomerIdOnly> DeactivateAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return (await new Customer(customerId).ArchiveAsync(cancellationToken, connection, userDefinedObjectForLogging));
+            return (await new Customer(customerId, metaData).ArchiveAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData));
         }
 
-        public async static Task<CustomerIdOnly> ArchiveAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<CustomerIdOnly> ArchiveAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return (await new Customer(customerId).ArchiveAsync(cancellationToken, connection, userDefinedObjectForLogging));
+            return (await new Customer(customerId, metaData).ArchiveAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData));
         }
 
-        public async virtual Task<CustomerIdOnly> ArchiveAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<CustomerIdOnly> ArchiveAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.PostAsync<CustomerIdOnly>(cancellationToken, "customer/archive", connection, this, userDefinedObjectForLogging);
+            var rv = await Requestor.PostAsync<CustomerIdOnly>(cancellationToken, "customer/archive", connection, this, userDefinedObjectForLogging, metaData ?? this.MetaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv.Data;
         }
 
 
-        public async static Task<List<Customer>> SearchAsync(CancellationToken cancellationToken, string tag = null, string taxId = null, string passportNumber = null, string driversLicenseNumber = null, DateTimeOffset? dateOfBirth = null, string emailAddress = null, string lastName = null, string firstName = null, int? pageNumber = 0, int? pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<Customer>> SearchAsync(CancellationToken cancellationToken, string tag = null, string taxId = null, string passportNumber = null, string driversLicenseNumber = null, DateTimeOffset? dateOfBirth = null,
+            string emailAddress = null, string lastName = null, string firstName = null, int? pageNumber = 0, int? pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var c = new Customer(0);
+            var c = new Customer(0, metaData);
             c.Tag = tag;
             c.TaxId = taxId;
             c.PassportNumber = passportNumber;
@@ -466,7 +529,7 @@ namespace CorePro.SDK
             c.LastName = lastName;
             c.FirstName = firstName;
 
-            return await c.SearchAsync(cancellationToken, pageNumber, pageSize, connection, userDefinedObjectForLogging);
+            return await c.SearchAsync(cancellationToken, pageNumber, pageSize, connection, userDefinedObjectForLogging, metaData);
 
         }
 
@@ -482,55 +545,55 @@ namespace CorePro.SDK
         /// <param name="firstName"></param>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public async virtual Task<List<Customer>> SearchAsync(CancellationToken cancellationToken, int? pageNumber = 0, int? pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<List<Customer>> SearchAsync(CancellationToken cancellationToken, int? pageNumber = 0, int? pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
 
-            var rv = await Requestor.PostAsync<List<Customer>>(cancellationToken, String.Format("customer/search?pageNumber={0}&pageSize={1}", pageNumber, pageSize), connection, this, userDefinedObjectForLogging);
+            var rv = await Requestor.PostAsync<List<Customer>>(cancellationToken, String.Format("customer/search?pageNumber={0}&pageSize={1}", pageNumber, pageSize), connection, this, userDefinedObjectForLogging, metaData ?? this.MetaData);
             return rv.Data;
         }
 
-        public async static Task<Customer> GetAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<Customer> GetAsync(CancellationToken cancellationToken, int? customerId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return await new Customer(customerId).GetAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await new Customer(customerId, metaData).GetAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public async virtual Task<Customer> GetAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<Customer> GetAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<Customer>(cancellationToken, String.Format("customer/get/{0}", this.CustomerId), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<Customer>(cancellationToken, String.Format("customer/get/{0}", this.CustomerId), connection, userDefinedObjectForLogging, metaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv.Data;
         }
 
-        public async static Task<Customer> GetByTagAsync(CancellationToken cancellationToken, string tag = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<Customer> GetByTagAsync(CancellationToken cancellationToken, string tag = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var c = new Customer(0);
+            var c = new Customer(0, metaData);
             c.Tag = tag;
-            return await c.GetByTagAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await c.GetByTagAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public async virtual Task<Customer> GetByTagAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<Customer> GetByTagAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<Customer>(cancellationToken, String.Format("customer/getbytag/{0}", this.Tag), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<Customer>(cancellationToken, String.Format("customer/getbytag/?tag={0}", Uri.EscapeDataString(this.Tag + "")), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv.Data;
         }
 
-        public async static Task<Customer> GetByEmailAsync(CancellationToken cancellationToken, string emailAddress = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<Customer> GetByEmailAsync(CancellationToken cancellationToken, string emailAddress = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var c = new Customer(0);
+            var c = new Customer(0, metaData);
             c.EmailAddress = emailAddress;
-            return await c.GetByEmailAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await c.GetByEmailAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public async virtual Task<Customer> GetByEmailAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<Customer> GetByEmailAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<Customer>(cancellationToken, String.Format("customer/getbyemail/{0}", this.EmailAddress), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<Customer>(cancellationToken, String.Format("customer/getbyemail/?emailaddress={0}", Uri.EscapeDataString(this.EmailAddress + "")), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv.Data;
@@ -542,9 +605,9 @@ namespace CorePro.SDK
             string emailAddress = null, string gender = null, string culture = null, bool? isSubjectToBackupWithholding = null, bool? isOptedInToBankCommunication = null,
             string tag = null, string customField1 = null, string customField2 = null, string customField3 = null, string customField4 = null, string customField5 = null,
             List<CustomerAddress> addresses = null, List<CustomerPhone> phones = null,
-            Connection connection = null, object userDefinedObjectForLogging = null)
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var c = new Customer(customerId);
+            var c = new Customer(customerId, metaData);
             c.FirstName = firstName;
             c.MiddleName = middleName;
             c.LastName = lastName;
@@ -572,7 +635,7 @@ namespace CorePro.SDK
             c.CustomField5 = customField5;
             c.Addresses = addresses;
             c.Phones = phones;
-            return await c.UpdateAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await c.UpdateAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -580,10 +643,10 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public async virtual Task<Customer> UpdateAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<Customer> UpdateAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.PostAsync<Customer>(cancellationToken, "customer/update", connection, this, userDefinedObjectForLogging);
+            var rv = await Requestor.PostAsync<Customer>(cancellationToken, "customer/update", connection, this, userDefinedObjectForLogging, metaData ?? this.MetaData);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv.Data;

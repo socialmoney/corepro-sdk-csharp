@@ -14,9 +14,15 @@ namespace CorePro.SDK.Models
         public decimal? MinimumAmount { get; set; }
         public decimal? MaximumAmount { get; set; }
 
+        public DateTimeOffset? RateEffectiveDate { get; set; }
+        public DateTimeOffset? RateExpireDate { get; set; }
+        public DateTimeOffset? EffectiveDate { get; set; }
+        public DateTimeOffset? ExpireDate { get; set; }
+        public string Description { get; set; }
+
         public override string ToString()
         {
-            return "Tier:" + Tier + ", Min:" + MinimumAmount + ", Max:" + MaximumAmount + ", Apr:" + Apr + ", Apy:" + Apy;
+            return $"Tier:{Tier}, Description:{Description}, Min:{MinimumAmount}, Max:{MaximumAmount}, Apr:{Apr}, Apy:{Apy}, RateEffective:{RateEffectiveDate}, RateExpireDate:{RateExpireDate}";
         }
     }
 }

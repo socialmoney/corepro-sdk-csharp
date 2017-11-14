@@ -118,7 +118,7 @@ namespace CorePro.SDK
                     }
                     catch (Exception ex)
                     {
-                        Logger.Write(ex, null, null);
+                        Logger.Write(ex, null, null, null);
                         throw;
                     }
                 }

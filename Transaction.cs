@@ -11,12 +11,16 @@ namespace CorePro.SDK
 {
     public class Transaction : ModelBase
     {
-        public Transaction()
+        public Transaction() : base()
+        {
+        }
+
+        public Transaction(RequestMetaData metaData) : base(metaData)
         {
 
         }
 
-        public Transaction(int? customerId)
+        public Transaction(int? customerId, RequestMetaData metaData = null) : this(metaData)
         {
             this.CustomerId = customerId;
         }
@@ -47,6 +51,11 @@ namespace CorePro.SDK
         public string InstitutionName { get; set; }
         public string CustomField1 { get; set; }
 
+        public decimal? RunningAccountBalance { get; set; }
+        public bool? IsSameDaySettle { get; set; }
+        public long? MasterId { get; set; }
+        public DateTimeOffset? StatementDate { get; set; }
+
         #region Synchronous
         /// <summary>
         /// Lists all transactions for given user for all accounts for all time.  Optionally can restrict to a given account or a given range of dates.
@@ -57,12 +66,14 @@ namespace CorePro.SDK
         /// <param name="endDate">Null or empty string means end of time</param>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public static List<Transaction> List(int? customerId, int? accountId, string status = null, DateTimeOffset? beginDate = null, DateTimeOffset? endDate = null, int pageNumber = 0, int pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<Transaction> List(int? customerId, int? accountId, string status = null, DateTimeOffset? beginDate = null, DateTimeOffset? endDate = null, int pageNumber = 0, int pageSize = 200, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return new Transaction(customerId).List(accountId, status, beginDate, endDate, pageNumber, pageSize, connection, userDefinedObjectForLogging);
+            return new Transaction(customerId, metaData).List(accountId, status, beginDate, endDate, pageNumber, pageSize, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public virtual List<Transaction> List(int? accountId, string status = null, DateTimeOffset? beginDate = null, DateTimeOffset? endDate = null, int pageNumber = 0, int pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual List<Transaction> List(int? accountId, string status = null, DateTimeOffset? beginDate = null, DateTimeOffset? endDate = null, int pageNumber = 0, int pageSize = 200, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
             var begin = beginDate == null ? "" : beginDate.Value.ToString("yyyy-MM-dd");
@@ -76,20 +87,20 @@ namespace CorePro.SDK
                 begin = "1900-01-01";
             }
 
-            var rv = Requestor.Get<List<Transaction>>(String.Format("transaction/list/{0}/{1}/{2}/{3}/{4}?pageNumber={5}&pageSize={6}", this.CustomerId, accountId, status, begin, end, pageNumber, pageSize), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<List<Transaction>>(String.Format("transaction/list/{0}/{1}/{2}/{3}/{4}?pageNumber={5}&pageSize={6}", this.CustomerId, accountId, status, begin, end, pageNumber, pageSize), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             return rv;
         }
 
-        public static List<Transaction> GetByTag(int? customerId, string tag, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<Transaction> GetByTag(int? customerId, string tag, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            return Requestor.Get<List<Transaction>>(String.Format("transaction/getbytag/{0}/{1}", customerId, tag), connection, userDefinedObjectForLogging);
+            return Requestor.Get<List<Transaction>>(String.Format("transaction/getbytag/{0}/?tag={1}", customerId, Uri.EscapeDataString(tag + "")), connection, userDefinedObjectForLogging, metaData);
         }
 
-        public static List<Transaction> Get(int? customerId, long? transactionId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<Transaction> Get(int? customerId, long? transactionId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            return Requestor.Get<List<Transaction>>(String.Format("transaction/get/{0}/{1}", customerId, transactionId), connection, userDefinedObjectForLogging);
+            return Requestor.Get<List<Transaction>>(String.Format("transaction/get/{0}/{1}", customerId, transactionId), connection, userDefinedObjectForLogging, metaData);
         }
         #endregion Synchronous
 
@@ -103,12 +114,14 @@ namespace CorePro.SDK
         /// <param name="endDate">Null or empty string means end of time</param>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public async static Task<List<Transaction>> ListAsync(CancellationToken cancellationToken, int? customerId, int? accountId, string status = null, DateTimeOffset? beginDate = null, DateTimeOffset? endDate = null, int pageNumber = 0, int pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<Transaction>> ListAsync(CancellationToken cancellationToken, int? customerId, int? accountId, string status = null, DateTimeOffset? beginDate = null, DateTimeOffset? endDate = null, int pageNumber = 0, int pageSize = 200, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return await new Transaction(customerId).ListAsync(cancellationToken, accountId, status, beginDate, endDate, pageNumber, pageSize, connection, userDefinedObjectForLogging);
+            return await new Transaction(customerId).ListAsync(cancellationToken, accountId, status, beginDate, endDate, pageNumber, pageSize, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public async virtual Task<List<Transaction>> ListAsync(CancellationToken cancellationToken, int? accountId, string status = null, DateTimeOffset? beginDate = null, DateTimeOffset? endDate = null, int pageNumber = 0, int pageSize = 200, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<List<Transaction>> ListAsync(CancellationToken cancellationToken, int? accountId, string status = null, DateTimeOffset? beginDate = null, DateTimeOffset? endDate = null, int pageNumber = 0, int pageSize = 200, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
             var begin = beginDate == null ? "" : beginDate.Value.ToString("yyyy-MM-dd");
@@ -126,21 +139,21 @@ namespace CorePro.SDK
                 begin = "1900-01-01";
             }
 
-            var rv = await Requestor.GetAsync<List<Transaction>>(cancellationToken, String.Format("transaction/list/{0}/{1}/{2}/{3}/{4}?pageNumber={5}&pageSize={6}", this.CustomerId, accountId, status, begin, end, pageNumber, pageSize), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<List<Transaction>>(cancellationToken, String.Format("transaction/list/{0}/{1}/{2}/{3}/{4}?pageNumber={5}&pageSize={6}", this.CustomerId, accountId, status, begin, end, pageNumber, pageSize), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             return rv.Data;
         }
 
-        public async static Task<List<Transaction>> GetByTagAsync(CancellationToken cancellationToken, int? customerId, string tag, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<Transaction>> GetByTagAsync(CancellationToken cancellationToken, int? customerId, string tag, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<List<Transaction>>(cancellationToken, String.Format("transaction/getbytag/{0}/{1}", customerId, tag), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<List<Transaction>>(cancellationToken, String.Format("transaction/getbytag/{0}/?tag={1}", customerId, Uri.EscapeDataString(tag + "")), connection, userDefinedObjectForLogging, metaData);
             return rv.Data;
         }
 
-        public async static Task<List<Transaction>> GetAsync(CancellationToken cancellationToken, int? customerId, long? transactionId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<Transaction>> GetAsync(CancellationToken cancellationToken, int? customerId, long? transactionId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<List<Transaction>>(cancellationToken, String.Format("transaction/get/{0}/{1}", customerId, transactionId), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<List<Transaction>>(cancellationToken, String.Format("transaction/get/{0}/{1}", customerId, transactionId), connection, userDefinedObjectForLogging, metaData);
             return rv.Data;
         }
         #endregion Async

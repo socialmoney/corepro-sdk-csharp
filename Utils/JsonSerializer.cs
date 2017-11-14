@@ -46,7 +46,12 @@ namespace CorePro.SDK.Utils
 
             mem.Position = 0;
 
-            return new StreamReader(mem).ReadToEnd();
+            string rv = null;
+            using (var sr = new StreamReader(mem))
+            {
+                rv = sr.ReadToEnd();
+            }
+            return rv;
         }
 
         public object Deserialize(Type objectType, string obj)

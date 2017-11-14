@@ -11,6 +11,15 @@ namespace CorePro.SDK
 {
     public class ECodeDocument : ModelBase
     {
+        public ECodeDocument() : base()
+        {
+        }
+
+        public ECodeDocument(RequestMetaData metaData) : base(metaData)
+        {
+
+        }
+
         public string ProductCode { get; set; }
         public int? DocumentId { get; set; }
         public string DocumentType { get; set; }
@@ -19,19 +28,20 @@ namespace CorePro.SDK
         public string Culture { get; set; }
         public string Html { get; set; }
 
-        public static List<ECodeDocument> List(int? programECodeId, string documentType = null, string cultureName = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<ECodeDocument> List(int? programECodeId, string documentType = null, string cultureName = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<List<ECodeDocument>>(String.Format("ecodedocument/list/{0}/{1}/{2}", programECodeId, documentType, cultureName), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<List<ECodeDocument>>(String.Format("ecodedocument/list/{0}/{1}/{2}", programECodeId, documentType, cultureName), connection, userDefinedObjectForLogging, metaData);
             return rv;
         }
 
 
 
-        public async static Task<List<ECodeDocument>> ListAsync(CancellationToken cancellationToken, int? programECodeId, string documentType = null, string cultureName = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<ECodeDocument>> ListAsync(CancellationToken cancellationToken, int? programECodeId, string documentType = null, string cultureName = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<List<ECodeDocument>>(cancellationToken, String.Format("ecodedocument/list/{0}/{1}/{2}", programECodeId, documentType, cultureName), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<List<ECodeDocument>>(cancellationToken, String.Format("ecodedocument/list/{0}/{1}/{2}", programECodeId, documentType, cultureName), connection, userDefinedObjectForLogging, metaData);
             return rv.Data;
         }
     }

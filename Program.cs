@@ -12,13 +12,25 @@ namespace CorePro.SDK
 {
     public class Program : ModelBase
     {
-        public Program()
-            : base()
+        public Program() : base()
         {
             ECodeProducts = new SortedDictionary<string, ProgramECode>();
             CheckingProducts = new SortedDictionary<string, ProgramChecking>();
             SavingsProducts = new SortedDictionary<string, ProgramSavings>();
             PrepaidProducts = new SortedDictionary<string, ProgramPrepaid>();
+            Accounts = new List<Account>();
+            ExternalAccounts = new List<ExternalAccount>();
+        }
+
+        public Program(RequestMetaData metaData)
+            : base(metaData)
+        {
+            ECodeProducts = new SortedDictionary<string, ProgramECode>();
+            CheckingProducts = new SortedDictionary<string, ProgramChecking>();
+            SavingsProducts = new SortedDictionary<string, ProgramSavings>();
+            PrepaidProducts = new SortedDictionary<string, ProgramPrepaid>();
+            Accounts = new List<Account>();
+            ExternalAccounts = new List<ExternalAccount>();
         }
         public string Name { get; set; }
         public string VerificationType { get; set; }
@@ -50,18 +62,23 @@ namespace CorePro.SDK
 
         public Bank Bank { get; set; }
 
-        public static Program Get(Connection connection = null, object userDefinedObjectForLogging = null)
+        public List<Account> Accounts { get; set; }
+        public List<ExternalAccount> ExternalAccounts { get; set; }
+
+        public string PublicKeyAlgorithms { get; set; }
+
+        public static Program Get(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<Program>("program/get", connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<Program>("program/get", connection, userDefinedObjectForLogging, metaData);
             return rv;
         }
 
 
-        public async static Task<Program> GetAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<Program> GetAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<Program>(cancellationToken, "program/get", connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<Program>(cancellationToken, "program/get", connection, userDefinedObjectForLogging, metaData);
             return rv.Data;
         }
 

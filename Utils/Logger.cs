@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CorePro.SDK.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -42,7 +43,7 @@ namespace CorePro.SDK.Utils
         }
 
         #region Synchronous
-        public static void Write(HttpWebRequest req, string body, object userDefinedObject)
+        public static void Write(HttpWebRequest req, string body, object userDefinedObject, RequestMetaData metaData)
         {
             var now = DateTime.Now;
             var threadId = Thread.CurrentThread.ManagedThreadId;
@@ -51,7 +52,7 @@ namespace CorePro.SDK.Utils
             {
                 try
                 {
-                    __registeredLogWriter.Write(now, threadId, req, body, userDefinedObject);
+                    __registeredLogWriter.Write(now, threadId, req, body, userDefinedObject, metaData);
                 }
                 catch (Exception ex)
                 {
@@ -75,12 +76,12 @@ namespace CorePro.SDK.Utils
                     sb.AppendLine(body);
                 }
 
-                writeToLogFile(now, threadId, sb.ToString(), userDefinedObject);
+                writeToLogFile(now, threadId, sb.ToString(), userDefinedObject, metaData);
             }
 
         }
 
-        public static void Write(HttpWebResponse resp, string body, object userDefinedObject)
+        public static void Write(HttpWebResponse resp, string body, object userDefinedObject, RequestMetaData metaData)
         {
             var now = DateTime.Now;
             var threadId = Thread.CurrentThread.ManagedThreadId;
@@ -89,7 +90,7 @@ namespace CorePro.SDK.Utils
             {
                 try
                 {
-                    __registeredLogWriter.Write(now, threadId, resp, body, userDefinedObject);
+                    __registeredLogWriter.Write(now, threadId, resp, body, userDefinedObject, metaData);
                 }
                 catch (Exception ex)
                 {
@@ -113,12 +114,12 @@ namespace CorePro.SDK.Utils
                     sb.AppendLine(body);
                 }
 
-                writeToLogFile(now, threadId, sb.ToString(), userDefinedObject);
+                writeToLogFile(now, threadId, sb.ToString(), userDefinedObject, metaData);
             }
 
         }
 
-        public static void Write(string body, object userDefinedObject)
+        public static void Write(string body, object userDefinedObject, RequestMetaData metaData)
         {
             var now = DateTime.Now;
             var threadId = Thread.CurrentThread.ManagedThreadId;
@@ -127,7 +128,7 @@ namespace CorePro.SDK.Utils
             {
                 try
                 {
-                    __registeredLogWriter.Write(now, threadId, body, userDefinedObject);
+                    __registeredLogWriter.Write(now, threadId, body, userDefinedObject, metaData);
                 }
                 catch (Exception ex)
                 {
@@ -135,11 +136,11 @@ namespace CorePro.SDK.Utils
                 }
             }
 
-            writeToLogFile(now, threadId, body, userDefinedObject);
+            writeToLogFile(now, threadId, body, userDefinedObject, metaData);
 
         }
 
-        public static void Write(Exception ex, string additionalInfo, object userDefinedObject)
+        public static void Write(Exception ex, string additionalInfo, object userDefinedObject, RequestMetaData metaData)
         {
 
             var now = DateTime.Now;
@@ -149,7 +150,7 @@ namespace CorePro.SDK.Utils
             {
                 try
                 {
-                    __registeredLogWriter.Write(now, threadId, ex, additionalInfo, userDefinedObject);
+                    __registeredLogWriter.Write(now, threadId, ex, additionalInfo, userDefinedObject, metaData);
                 }
                 catch (Exception ex2)
                 {
@@ -157,10 +158,10 @@ namespace CorePro.SDK.Utils
                 }
             }
 
-            writeToLogFile(now, threadId, ex.Message + ". " + additionalInfo + ". " + ex.StackTrace, userDefinedObject);
+            writeToLogFile(now, threadId, ex.Message + ". " + additionalInfo + ". " + ex.StackTrace, userDefinedObject, metaData);
         }
 
-        private static void writeToLogFile(DateTimeOffset timestamp, int managedThreadId, string body, object userDefinedObject)
+        private static void writeToLogFile(DateTimeOffset timestamp, int managedThreadId, string body, object userDefinedObject, RequestMetaData metaData)
         {
 
             var logFile = LogFilePath;
@@ -176,7 +177,7 @@ namespace CorePro.SDK.Utils
 
                     using (var sw = File.AppendText(logFile))
                     {
-                        sw.WriteLine("#|" + timestamp.ToString("yyyy-MM-dd hh:mm:ss.fffffff tt") + "|" + managedThreadId + "|" + body + "|" + userDefinedObject);
+                        sw.WriteLine("#|" + timestamp.ToString("yyyy-MM-dd hh:mm:ss.fffffff tt") + "|" + managedThreadId + "|" + metaData?.ToString() + "|" + body + "|" + userDefinedObject);
                     }
                 }
                 catch (Exception ex)
@@ -190,7 +191,7 @@ namespace CorePro.SDK.Utils
 
         #region Async
 
-        public async static Task WriteAsync(CancellationToken cancellationToken, HttpWebRequest req, string body, object userDefinedObject)
+        public async static Task WriteAsync(CancellationToken cancellationToken, HttpWebRequest req, string body, object userDefinedObject, RequestMetaData metaData = null)
         {
             var now = DateTime.Now;
             var threadId = Thread.CurrentThread.ManagedThreadId;
@@ -199,7 +200,7 @@ namespace CorePro.SDK.Utils
             {
                 try
                 {
-                    await __registeredLogWriter.WriteAsync(cancellationToken, now, threadId, req, body, userDefinedObject);
+                    await __registeredLogWriter.WriteAsync(cancellationToken, now, threadId, req, body, userDefinedObject, metaData);
                 }
                 catch (Exception ex)
                 {
@@ -223,12 +224,12 @@ namespace CorePro.SDK.Utils
                     sb.AppendLine(body);
                 }
 
-                writeToLogFile(now, threadId, sb.ToString(), userDefinedObject);
+                writeToLogFile(now, threadId, sb.ToString(), userDefinedObject, metaData);
             }
 
         }
 
-        public async static Task WriteAsync(CancellationToken cancellationToken, HttpWebResponse resp, string body, object userDefinedObject)
+        public async static Task WriteAsync(CancellationToken cancellationToken, HttpWebResponse resp, string body, object userDefinedObject, RequestMetaData metaData = null)
         {
             var now = DateTime.Now;
             var threadId = Thread.CurrentThread.ManagedThreadId;
@@ -237,7 +238,7 @@ namespace CorePro.SDK.Utils
             {
                 try
                 {
-                    await __registeredLogWriter.WriteAsync(cancellationToken, now, threadId, resp, body, userDefinedObject);
+                    await __registeredLogWriter.WriteAsync(cancellationToken, now, threadId, resp, body, userDefinedObject, metaData);
                 }
                 catch (Exception ex)
                 {
@@ -261,12 +262,12 @@ namespace CorePro.SDK.Utils
                     sb.AppendLine(body);
                 }
 
-                writeToLogFile(now, threadId, sb.ToString(), userDefinedObject);
+                writeToLogFile(now, threadId, sb.ToString(), userDefinedObject, metaData);
             }
 
         }
 
-        public async static Task Write(CancellationToken cancellationToken, string body, object userDefinedObject)
+        public async static Task Write(CancellationToken cancellationToken, string body, object userDefinedObject, RequestMetaData metaData = null)
         {
             var now = DateTime.Now;
             var threadId = Thread.CurrentThread.ManagedThreadId;
@@ -275,7 +276,7 @@ namespace CorePro.SDK.Utils
             {
                 try
                 {
-                    await __registeredLogWriter.WriteAsync(cancellationToken, now, threadId, body, userDefinedObject);
+                    await __registeredLogWriter.WriteAsync(cancellationToken, now, threadId, body, userDefinedObject, metaData);
                 }
                 catch (Exception ex)
                 {
@@ -283,11 +284,11 @@ namespace CorePro.SDK.Utils
                 }
             }
 
-            writeToLogFile(now, threadId, body, userDefinedObject);
+            writeToLogFile(now, threadId, body, userDefinedObject, metaData);
 
         }
 
-        public async static Task WriteAsync(CancellationToken cancellationToken, Exception ex, string additionalInfo, object userDefinedObject)
+        public async static Task WriteAsync(CancellationToken cancellationToken, Exception ex, string additionalInfo, object userDefinedObject, RequestMetaData metaData = null)
         {
 
             var now = DateTime.Now;
@@ -297,7 +298,7 @@ namespace CorePro.SDK.Utils
             {
                 try
                 {
-                    await __registeredLogWriter.WriteAsync(cancellationToken, now, threadId, ex, additionalInfo, userDefinedObject);
+                    await __registeredLogWriter.WriteAsync(cancellationToken, now, threadId, ex, additionalInfo, userDefinedObject, metaData);
                 }
                 catch (Exception ex2)
                 {
@@ -305,10 +306,10 @@ namespace CorePro.SDK.Utils
                 }
             }
 
-            writeToLogFile(now, threadId, ex.Message + ". " + additionalInfo + ". " + ex.StackTrace, userDefinedObject);
+            writeToLogFile(now, threadId, ex.Message + ". " + additionalInfo + ". " + ex.StackTrace, userDefinedObject, metaData);
         }
 
-        private async static void writeToLogFileAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, string body, object userDefinedObject)
+        private async static void writeToLogFileAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, string body, object userDefinedObject, RequestMetaData metaData = null)
         {
 
             var logFile = LogFilePath;
@@ -324,7 +325,7 @@ namespace CorePro.SDK.Utils
 
                     using (var sw = File.AppendText(logFile))
                     {
-                        await sw.WriteLineAsync("#|" + timestamp.ToString("yyyy-MM-dd hh:mm:ss.fffffff tt") + "|" + managedThreadId + "|" + body + "|" + userDefinedObject);
+                        await sw.WriteLineAsync("#|" + timestamp.ToString("yyyy-MM-dd hh:mm:ss.fffffff tt") + "|" + managedThreadId + "|" + metaData?.ToString() + "|" + body + "|" + userDefinedObject);
                     }
                 }
                 catch (Exception ex)

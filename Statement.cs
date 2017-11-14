@@ -11,6 +11,16 @@ namespace CorePro.SDK
 {
     public class Statement : ModelBase
     {
+
+        public Statement() : base()
+        {
+        }
+
+        public Statement(RequestMetaData metaData) : base(metaData)
+        {
+
+        }
+
         public int? StatementId { get; set; }
         public int? CustomerId { get; set; }
         public string Type { get; set; }
@@ -19,24 +29,27 @@ namespace CorePro.SDK
 
         #region Synchronous
 
-        public static List<Statement> List(int customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<Statement> List(int customerId, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<List<Statement>>(String.Format("statement/list/{0}", customerId), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<List<Statement>>(String.Format("statement/list/{0}", customerId), connection, userDefinedObjectForLogging, metaData);
             return rv;
         }
 
-        public static Statement Get(int customerId, int? statementId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static Statement Get(int customerId, int? statementId = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<Statement>(String.Format("statement/get/{0}/{1}", customerId, statementId), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<Statement>(String.Format("statement/get/{0}/{1}", customerId, statementId), connection, userDefinedObjectForLogging, metaData);
             return rv;
         }
 
-        public static FileContent Download(int customerId, int? statementId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static FileContent Download(int customerId, int? statementId = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<FileContent>(String.Format("statement/download/{0}/{1}", customerId, statementId), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<FileContent>(String.Format("statement/download/{0}/{1}", customerId, statementId), connection, userDefinedObjectForLogging, metaData);
             return rv;
         }
         #endregion Synchronous
@@ -46,24 +59,27 @@ namespace CorePro.SDK
 
         #region Async
 
-        public async static Task<List<Statement>> ListAsync(CancellationToken cancellationToken, int customerId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<Statement>> ListAsync(CancellationToken cancellationToken, int customerId, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<List<Statement>>(cancellationToken, String.Format("statement/list/{0}", customerId), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<List<Statement>>(cancellationToken, String.Format("statement/list/{0}", customerId), connection, userDefinedObjectForLogging, metaData);
             return rv.Data;
         }
 
-        public async static Task<Statement> GetAsync(CancellationToken cancellationToken, int customerId, int? statementId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<Statement> GetAsync(CancellationToken cancellationToken, int customerId, int? statementId = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<Statement>(cancellationToken, String.Format("statement/get/{0}/{1}", customerId, statementId), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<Statement>(cancellationToken, String.Format("statement/get/{0}/{1}", customerId, statementId), connection, userDefinedObjectForLogging, metaData);
             return rv.Data;
         }
 
-        public async static Task<FileContent> DownloadAsync(CancellationToken cancellationToken, int customerId, int? statementId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<FileContent> DownloadAsync(CancellationToken cancellationToken, int customerId, int? statementId = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<FileContent>(cancellationToken, String.Format("statement/download/{0}/{1}", customerId, statementId), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<FileContent>(cancellationToken, String.Format("statement/download/{0}/{1}", customerId, statementId), connection, userDefinedObjectForLogging, metaData);
             return rv.Data;
         }
         #endregion Async

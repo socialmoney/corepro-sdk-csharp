@@ -15,10 +15,14 @@ namespace CorePro.SDK.Iso8583
         public int? TransferToAccountId { get; set; }
         public decimal? Amount { get; set; }
         public string Description { get; set; }
+        /// <summary>
+        /// Should be in yyyyMMdd format.  e.g. "20160430"
+        /// </summary>
+        public string SettlementDate { get; set; }
         public string FunctionCode { get; set; }
         public string ProcessingCode { get; set; }
         public string MerchantCategoryCode { get; set; }
-        public string CardTypeCode { get; set; }
+        public string CardType { get; set; }
 
         public string Tag { get; set; }
         public string CustomField1 { get; set; }
@@ -58,7 +62,7 @@ namespace CorePro.SDK.Iso8583
             fin.FunctionCode = functionCode;
             fin.ProcessingCode = processingCode;
             fin.MerchantCategoryCode = merchantCategoryCode;
-            fin.CardTypeCode = cardTypeCode;
+            fin.CardType = cardTypeCode;
             fin.AuthorizationTransactionId = authorizationTransactionId;
             fin.Tag = tag;
             fin.CustomField1 = customField1;
@@ -84,7 +88,7 @@ namespace CorePro.SDK.Iso8583
             fin.FunctionCode = functionCode;
             fin.ProcessingCode = processingCode;
             fin.MerchantCategoryCode = merchantCategoryCode;
-            fin.CardTypeCode = cardTypeCode;
+            fin.CardType = cardTypeCode;
             fin.AuthorizationTransactionId = authorizationTransactionId;
             fin.Tag = tag;
             fin.CustomField1 = customField1;
@@ -112,7 +116,7 @@ namespace CorePro.SDK.Iso8583
             fin.FunctionCode = functionCode;
             fin.ProcessingCode = processingCode;
             fin.MerchantCategoryCode = merchantCategoryCode;
-            fin.CardTypeCode = cardTypeCode;
+            fin.CardType = cardTypeCode;
             fin.AuthorizationTransactionId = authorizationTransactionId;
             fin.Tag = tag;
             fin.CustomField1 = customField1;
@@ -139,7 +143,7 @@ namespace CorePro.SDK.Iso8583
             fin.FunctionCode = functionCode;
             fin.ProcessingCode = processingCode;
             fin.MerchantCategoryCode = merchantCategoryCode;
-            fin.CardTypeCode = cardTypeCode;
+            fin.CardType = cardTypeCode;
             fin.AuthorizationTransactionId = authorizationTransactionId;
             fin.Tag = tag;
             fin.CustomField1 = customField1;

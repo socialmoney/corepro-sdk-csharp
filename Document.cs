@@ -11,6 +11,15 @@ namespace CorePro.SDK
 {
     public class Document : ModelBase
     {
+        public Document() : base()
+        {
+        }
+
+        public Document(RequestMetaData metaData) : base(metaData)
+        {
+
+        }
+
         public int? BankId { get; set; }
         public int? CustomerId { get; set; }
         public int? DocumentId { get; set; }
@@ -22,18 +31,18 @@ namespace CorePro.SDK
         public DateTimeOffset? EffectiveDate { get; set; }
         public DateTimeOffset? ExpireDate { get; set; }
 
-        public static List<Document> List(string cultureName, string documentType = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<Document> List(string cultureName, string documentType = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<List<Document>>(String.Format("document/list/{0}/{1}", cultureName, documentType), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<List<Document>>(String.Format("document/list/{0}/{1}", cultureName, documentType), connection, userDefinedObjectForLogging, metaData);
             return rv;
         }
 
 
-        public async static Task<List<Document>> ListAsync(CancellationToken cancellationToken, string cultureName, string documentType = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<Document>> ListAsync(CancellationToken cancellationToken, string cultureName, string documentType = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<List<Document>>(cancellationToken, String.Format("document/list/{0}/{1}", cultureName, documentType), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<List<Document>>(cancellationToken, String.Format("document/list/{0}/{1}", cultureName, documentType), connection, userDefinedObjectForLogging, metaData);
             return rv.Data;
         }
 

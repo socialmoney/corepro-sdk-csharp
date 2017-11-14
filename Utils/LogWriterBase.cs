@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CorePro.SDK.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,45 +14,45 @@ namespace CorePro.SDK.Utils
     /// </summary>
     public class LogWriterBase : ILogWriter
     {
-        public virtual void Write(DateTimeOffset timestamp, int managedThreadId, string message, object userDefinedObject)
+        public virtual void Write(DateTimeOffset timestamp, int managedThreadId, string message, object userDefinedObject, RequestMetaData metaData = null)
         {
             // do nothing
         }
 
-        public virtual void Write(DateTimeOffset timestamp, int managedThreadId, System.Net.HttpWebRequest request, string body, object userDefinedObject)
+        public virtual void Write(DateTimeOffset timestamp, int managedThreadId, System.Net.HttpWebRequest request, string body, object userDefinedObject, RequestMetaData metaData = null)
         {
             // do nothing
         }
 
-        public virtual void Write(DateTimeOffset timestamp, int managedThreadId, System.Net.HttpWebResponse response, string body, object userDefinedObject)
+        public virtual void Write(DateTimeOffset timestamp, int managedThreadId, System.Net.HttpWebResponse response, string body, object userDefinedObject, RequestMetaData metaData = null)
         {
             // do nothing
         }
 
-        public virtual void Write(DateTimeOffset timestamp, int managedThreadId, Exception exception, string additionalInfo, object userDefinedObject)
+        public virtual void Write(DateTimeOffset timestamp, int managedThreadId, Exception exception, string additionalInfo, object userDefinedObject, RequestMetaData metaData = null)
         {
             // do nothing
         }
 
-        public async virtual Task WriteAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, string message, object userDefinedObject)
-        {
-            // do nothing
-            await Task.FromResult<object>(null);
-        }
-
-        public async virtual Task WriteAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, System.Net.HttpWebRequest request, string body, object userDefinedObject)
+        public async virtual Task WriteAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, string message, object userDefinedObject, RequestMetaData metaData = null)
         {
             // do nothing
             await Task.FromResult<object>(null);
         }
 
-        public async virtual Task WriteAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, System.Net.HttpWebResponse response, string body, object userDefinedObject)
+        public async virtual Task WriteAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, System.Net.HttpWebRequest request, string body, object userDefinedObject, RequestMetaData metaData = null)
         {
             // do nothing
             await Task.FromResult<object>(null);
         }
 
-        public async virtual Task WriteAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, Exception exception, string additionalInfo, object userDefinedObject)
+        public async virtual Task WriteAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, System.Net.HttpWebResponse response, string body, object userDefinedObject, RequestMetaData metaData = null)
+        {
+            // do nothing
+            await Task.FromResult<object>(null);
+        }
+
+        public async virtual Task WriteAsync(CancellationToken cancellationToken, DateTimeOffset timestamp, int managedThreadId, Exception exception, string additionalInfo, object userDefinedObject, RequestMetaData metaData = null)
         {
             // do nothing
             await Task.FromResult<object>(null);

@@ -11,21 +11,32 @@ namespace CorePro.SDK
 {
     public class ExternalAccountDocument : ModelBase
     {
-        public static void Upload(int? customerId, int? externalAccountId, string documentType, string documentName, byte[] documentContent, string reasonType, Connection connection = null, object userDefinedObjectForLogging = null)
+        public ExternalAccountDocument() : base()
+        {
+        }
+
+        public ExternalAccountDocument(RequestMetaData metaData): base(metaData)
+        {
+
+        }
+
+        public static void Upload(int? customerId, int? externalAccountId, string documentType, string documentName, byte[] documentContent, string reasonType, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
             var body = new { CustomerId = customerId, ExternalAccountId = externalAccountId, DocumentType = documentType, DocumentName = documentName, DocumentContent = Convert.ToBase64String(documentContent), ReasonType = reasonType };
-            var rv = Requestor.Post<CustomerIdOnly>("externalaccountdocument/upload", connection, body, userDefinedObjectForLogging);
+            var rv = Requestor.Post<CustomerIdOnly>("externalaccountdocument/upload", connection, body, userDefinedObjectForLogging, metaData);
         }
 
 
 
 
-        public async static Task UploadAsync(CancellationToken cancellationToken, int? customerId, int? externalAccountId, string documentType, string documentName, byte[] documentContent, string reasonType, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task UploadAsync(CancellationToken cancellationToken, int? customerId, int? externalAccountId, string documentType, string documentName, byte[] documentContent, string reasonType, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
             var body = new { CustomerId = customerId, ExternalAccountId = externalAccountId, DocumentType = documentType, DocumentName = documentName, DocumentContent = Convert.ToBase64String(documentContent), ReasonType = reasonType };
-            var rv = await Requestor.PostAsync<CustomerIdOnly>(cancellationToken, "externalaccountdocument/upload", connection, body, userDefinedObjectForLogging);
+            var rv = await Requestor.PostAsync<CustomerIdOnly>(cancellationToken, "externalaccountdocument/upload", connection, body, userDefinedObjectForLogging, metaData);
         }
     }
 }

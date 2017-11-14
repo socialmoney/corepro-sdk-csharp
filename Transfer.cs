@@ -11,13 +11,17 @@ namespace CorePro.SDK
 {
     public class Transfer : ModelBase
     {
-        public Transfer()
+        public Transfer() : base()
+        {
+        }
+
+        public Transfer(RequestMetaData metaData) : base(metaData)
         {
 
         }
 
-        public Transfer(int? customerId, int? fromId, int? toId, decimal? amount, string tag = null, string nachaDescription = null)
-            : this()
+        public Transfer(int? customerId, int? fromId, int? toId, decimal? amount, string tag = null, string nachaDescription = null, bool? isSameDaySettle = false, RequestMetaData metaData = null)
+            : this(metaData)
         {
             this.CustomerId = customerId;
             this.FromId = fromId;
@@ -25,6 +29,7 @@ namespace CorePro.SDK
             this.Amount = amount;
             this.Tag = tag;
             this.NachaDescription = nachaDescription;
+            this.IsSameDaySettle = isSameDaySettle;
         }
 
         public int? CustomerId { get; set; }
@@ -34,6 +39,7 @@ namespace CorePro.SDK
         public string NachaDescription { get; set; }
         public string Tag { get; set; }
         public long? TransactionId { get; set; }
+        public bool? IsSameDaySettle { get; set; }
 
         #region Synchronous
 
@@ -49,16 +55,17 @@ namespace CorePro.SDK
         /// <param name="connection"></param>
         /// <param name="userDefinedObjectForLogging"></param>
         /// <returns></returns>
-        public static List<Transfer> Create(int? customerId, int? fromId, int? toId, decimal? amount, string tag = null, string nachaDescription = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<Transfer> Create(int? customerId, int? fromId, int? toId, decimal? amount, string tag = null, string nachaDescription = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, bool? isSameDaySettle = false, RequestMetaData metaData = null)
         {
-            var t = new Transfer(customerId, fromId, toId, amount, tag, nachaDescription);
-            return t.Create(connection, userDefinedObjectForLogging);
+            var t = new Transfer(customerId, fromId, toId, amount, tag, nachaDescription, isSameDaySettle, metaData);
+            return t.Create(connection, userDefinedObjectForLogging, metaData);
         }
 
-        public virtual List<Transfer> Create(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual List<Transfer> Create(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Post<List<Transfer>>("transfer/create", connection, this, userDefinedObjectForLogging);
+            var rv = Requestor.Post<List<Transfer>>("transfer/create", connection, this, userDefinedObjectForLogging, metaData);
             if (rv != null && rv.Count > 0)
             {
                 this.RequestId = rv[0].RequestId;
@@ -75,17 +82,18 @@ namespace CorePro.SDK
         /// <param name="connection"></param>
         /// <param name="userDefinedObjectForLogging"></param>
         /// <returns></returns>
-        public static List<Transfer> Void(int? customerId, long? transactionId = null, string tag = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<Transfer> Void(int? customerId, long? transactionId = null, string tag = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var t = new Transfer(customerId, null, null, null, tag, null);
+            var t = new Transfer(customerId, null, null, null, tag, null, null, metaData);
             t.TransactionId = transactionId;
-            return t.Void(connection, userDefinedObjectForLogging);
+            return t.Void(connection, userDefinedObjectForLogging, metaData);
         }
 
-        public virtual List<Transfer> Void(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual List<Transfer> Void(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Post<List<Transfer>>("transfer/void", connection, this, userDefinedObjectForLogging);
+            var rv = Requestor.Post<List<Transfer>>("transfer/void", connection, this, userDefinedObjectForLogging, metaData);
             if (rv != null && rv.Count > 0)
             {
                 this.RequestId = rv[0].RequestId;
@@ -115,16 +123,18 @@ namespace CorePro.SDK
         /// <param name="connection"></param>
         /// <param name="userDefinedObjectForLogging"></param>
         /// <returns></returns>
-        public async static Task<List<Transfer>> CreateAsync(CancellationToken cancellationToken, int? customerId, int? fromId, int? toId, decimal? amount, string tag = null, string nachaDescription = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<Transfer>> CreateAsync(CancellationToken cancellationToken, int? customerId, int? fromId, int? toId, decimal? amount, string tag = null, string nachaDescription = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, bool? isSameDaySettle = false, RequestMetaData metaData = null)
         {
-            var t = new Transfer(customerId, fromId, toId, amount, tag, nachaDescription);
-            return await t.CreateAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            var t = new Transfer(customerId, fromId, toId, amount, tag, nachaDescription, isSameDaySettle, metaData);
+            return await t.CreateAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public async virtual Task<List<Transfer>> CreateAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<List<Transfer>> CreateAsync(CancellationToken cancellationToken, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = (await Requestor.PostAsync<List<Transfer>>(cancellationToken, "transfer/create", connection, this, userDefinedObjectForLogging)).Data;
+            var rv = (await Requestor.PostAsync<List<Transfer>>(cancellationToken, "transfer/create", connection, this, userDefinedObjectForLogging, metaData)).Data;
             if (rv != null && rv.Count > 0)
             {
                 this.RequestId = rv[0].RequestId;
@@ -141,17 +151,18 @@ namespace CorePro.SDK
         /// <param name="connection"></param>
         /// <param name="userDefinedObjectForLogging"></param>
         /// <returns></returns>
-        public async static Task<List<Transfer>> VoidAsync(CancellationToken cancellationToken, int? customerId, long? transactionId = null, string tag = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<Transfer>> VoidAsync(CancellationToken cancellationToken, int? customerId, long? transactionId = null, string tag = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var t = new Transfer(customerId, null, null, null, tag, null);
+            var t = new Transfer(customerId, null, null, null, tag, null, null, metaData);
             t.TransactionId = transactionId;
-            return await t.VoidAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await t.VoidAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public async virtual Task<List<Transfer>> VoidAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<List<Transfer>> VoidAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = (await Requestor.PostAsync<List<Transfer>>(cancellationToken, "transfer/void", connection, this, userDefinedObjectForLogging)).Data;
+            var rv = (await Requestor.PostAsync<List<Transfer>>(cancellationToken, "transfer/void", connection, this, userDefinedObjectForLogging, metaData)).Data;
             if (rv != null && rv.Count > 0)
             {
                 this.RequestId = rv[0].RequestId;

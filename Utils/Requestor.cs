@@ -56,7 +56,7 @@ namespace CorePro.SDK.Utils
         }
 
         #region Sync methods
-        private static TResponse send<TResponse>(HttpWebRequest req, Connection authToken, string format, string requestBody, object userDefinedObjectForLogging) where TResponse : class
+        private static TResponse send<TResponse>(HttpWebRequest req, Connection authToken, string format, string requestBody, object userDefinedObjectForLogging, RequestMetaData metaData) where TResponse : class
         {
 
             HttpWebResponse response = null;
@@ -65,7 +65,7 @@ namespace CorePro.SDK.Utils
                 try
                 {
                     response = (HttpWebResponse)req.GetResponse();
-                    return parseResponse<TResponse>(req, response, format, requestBody, userDefinedObjectForLogging);
+                    return parseResponse<TResponse>(req, response, format, requestBody, userDefinedObjectForLogging, metaData);
                 }
                 catch (WebException we)
                 {
@@ -74,7 +74,7 @@ namespace CorePro.SDK.Utils
                     {
                         // note: the follwing will always throw an ApiException.
                         //       we use it just to parse the errors nicely.
-                        parseResponse<object>(req, response, format, requestBody, userDefinedObjectForLogging);
+                        parseResponse<object>(req, response, format, requestBody, userDefinedObjectForLogging, metaData);
                     }
                     else
                     {
@@ -93,7 +93,7 @@ namespace CorePro.SDK.Utils
             return rv;
         }
 
-        private static Envelope<TResponse> parseResponse<TResponse>(HttpWebRequest req, HttpWebResponse response, string format, string requestBody, object userDefinedObjectForLogging) where TResponse : class
+        private static Envelope<TResponse> parseResponse<TResponse>(HttpWebRequest req, HttpWebResponse response, string format, string requestBody, object userDefinedObjectForLogging, RequestMetaData metaData) where TResponse : class
         {
 
             var code = response.StatusCode;
@@ -114,22 +114,21 @@ namespace CorePro.SDK.Utils
                             switch (response.StatusCode)
                             {
                                 case HttpStatusCode.NotImplemented:
-                                    return handleGracefully<TResponse>((int)response.StatusCode, 50501, "Not Implemented", requestBody, responseBody);
+                                    return handleGracefully<TResponse>((int)response.StatusCode, 50501, "Not Implemented", requestBody, responseBody, metaData);
                                 case HttpStatusCode.BadGateway:
-                                    return handleGracefully<TResponse>((int)response.StatusCode, 50502, "Bad Gateway", requestBody, responseBody);
+                                    return handleGracefully<TResponse>((int)response.StatusCode, 50502, "Bad Gateway", requestBody, responseBody, metaData);
                                 case HttpStatusCode.ServiceUnavailable:
-                                    return handleGracefully<TResponse>((int)response.StatusCode, 50503, "Service Unavailable", requestBody, responseBody);
+                                    return handleGracefully<TResponse>((int)response.StatusCode, 50503, "Service Unavailable", requestBody, responseBody, metaData);
                                 case HttpStatusCode.GatewayTimeout:
-                                    return handleGracefully<TResponse>((int)response.StatusCode, 50504, "Gateway Timeout", requestBody, responseBody);
+                                    return handleGracefully<TResponse>((int)response.StatusCode, 50504, "Gateway Timeout", requestBody, responseBody, metaData);
                                 case HttpStatusCode.HttpVersionNotSupported:
-                                    return handleGracefully<TResponse>((int)response.StatusCode, 50505, "Http Version Not Supported", requestBody, responseBody);
+                                    return handleGracefully<TResponse>((int)response.StatusCode, 50505, "Http Version Not Supported", requestBody, responseBody, metaData);
                                 default:
                                     try
                                     {
                                         envelope = new JsonSerializer().Deserialize<Envelope<TResponse>>(responseBody);
                                         envelope.RawRequestBody = requestBody;
                                         envelope.RawResponseBody = responseBody;
-
                                         try
                                         {
                                             if (envelope.Data != null)
@@ -182,7 +181,7 @@ namespace CorePro.SDK.Utils
                                     {
                                         // output is not valid JSON (parse failed).
                                         // just throw out the actual status code from the response
-                                        return handleGracefully<TResponse>((int)response.StatusCode, 50000 + (int)response.StatusCode, "HTTP error " + (int)response.StatusCode, requestBody, responseBody);
+                                        return handleGracefully<TResponse>((int)response.StatusCode, 50000 + (int)response.StatusCode, "HTTP error " + (int)response.StatusCode, requestBody, responseBody, metaData);
                                     }
                             }
                         }
@@ -194,23 +193,24 @@ namespace CorePro.SDK.Utils
             }
             catch (Exception ex)
             {
-                Logger.Write(ex, null, userDefinedObjectForLogging);
+                Logger.Write(ex, null, userDefinedObjectForLogging, metaData);
                 throw;
             }
             finally
             {
-                Logger.Write(response, responseBody, userDefinedObjectForLogging);
+                Logger.Write(response, responseBody, userDefinedObjectForLogging, metaData);
             }
             return null;
         }
 
-        private static Envelope<TResponse> handleGracefully<TResponse>(int statusCode, int errorCode, string errorMessage, string rawRequestBody, string rawResponseBody)
+        private static Envelope<TResponse> handleGracefully<TResponse>(int statusCode, int errorCode, string errorMessage, string rawRequestBody, string rawResponseBody, RequestMetaData metaData = null)
         {
             var envelope = new Envelope<TResponse>();
             envelope.Errors.Add(new Error { Code = errorCode, Message = errorMessage });
             envelope.Status = (int)statusCode;
             envelope.RawRequestBody = rawRequestBody;
             envelope.RawResponseBody = rawResponseBody;
+            envelope.RequestId = metaData?.RequestId;
             return handleGracefully(envelope);
         }
 
@@ -221,6 +221,7 @@ namespace CorePro.SDK.Utils
             {
                 var reea = new RequestErrorEventArgs();
                 reea.Envelope = envelope;
+                reea.RequestId = envelope.RequestId;
                 OnError(new Object(), reea);
                 handled = reea.IsHandled;
             }
@@ -232,7 +233,7 @@ namespace CorePro.SDK.Utils
             else
             {
                 // error was not handled gracefully according to the caller. throw hard exception.
-                throw new CoreProApiException(envelope.Errors, envelope.Status, envelope.RawResponseBody);
+                throw new CoreProApiException(envelope.Errors, envelope.Status, envelope.RawResponseBody, envelope.RequestId);
             }
         }
 
@@ -243,7 +244,7 @@ namespace CorePro.SDK.Utils
         /// <param name="relativeUrl"></param>
         /// <param name="connection">Info to put into the Authorization header.</param>
         /// <returns></returns>
-        public static TResponse Get<TResponse>(string relativeUrl, Connection connection, object userDefinedObject) where TResponse : class
+        public static TResponse Get<TResponse>(string relativeUrl, Connection connection, object userDefinedObject, RequestMetaData metaData = null) where TResponse : class
         {
             try
             {
@@ -259,18 +260,21 @@ namespace CorePro.SDK.Utils
                 if (connection != null)
                     req.Headers.Add("Authorization", connection.HeaderValue);
 
-                Logger.Write(req, null, userDefinedObject);
-                return send<TResponse>(req, connection, "json", null, userDefinedObject);
+                if (metaData?.RequestId != null)
+                    req.Headers.Add("X-CorePro-RequestId", metaData?.RequestId.ToString());
+
+                Logger.Write(req, null, userDefinedObject, metaData);
+                return send<TResponse>(req, connection, "json", null, userDefinedObject, metaData);
             }
             catch (Exception ex)
             {
-                Logger.Write(ex, null, userDefinedObject);
+                Logger.Write(ex, null, userDefinedObject, metaData);
                 throw;
             }
 
         }
 
-        public static object Download(string relativeUrl, Connection connection, object userDefinedObjectForLogging = null)
+        public static object Download(string relativeUrl, Connection connection, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             try { 
                 // required for ssl
@@ -287,13 +291,16 @@ namespace CorePro.SDK.Utils
                 if (connection != null)
                     req.Headers.Add("Authorization", connection.HeaderValue);
 
-                Logger.Write(req, null, userDefinedObjectForLogging);
+                if (metaData?.RequestId != null)
+                    req.Headers.Add("X-CorePro-RequestId", metaData?.RequestId.ToString());
 
-                return send<string>(req, connection, "csv", null, userDefinedObjectForLogging);
+                Logger.Write(req, null, userDefinedObjectForLogging, metaData);
+
+                return send<string>(req, connection, "csv", null, userDefinedObjectForLogging, metaData);
             }
             catch (Exception ex)
             {
-                Logger.Write(ex, null, userDefinedObjectForLogging);
+                Logger.Write(ex, null, userDefinedObjectForLogging, metaData);
                 throw;
             }
 
@@ -308,7 +315,7 @@ namespace CorePro.SDK.Utils
         /// <param name="connection">Info to put into the Authorization header.</param>
         /// <param name="body"></param>
         /// <returns></returns>
-        public static TResponse Post<TResponse>(string relativeUrl, Connection connection, object body, object userDefinedObjectForLogging) where TResponse : class
+        public static TResponse Post<TResponse>(string relativeUrl, Connection connection, object body, object userDefinedObjectForLogging, RequestMetaData metaData = null) where TResponse : class
         {
             try { 
                 var absoluteUrl = "https://" + connection.DomainName + "/" + relativeUrl;
@@ -324,6 +331,22 @@ namespace CorePro.SDK.Utils
                 if (connection != null)
                     request.Headers.Add("Authorization", connection.HeaderValue);
 
+                if (metaData?.RequestId == null)
+                {
+                    var model = body as ModelBase;
+                    if (model != null)
+                    {
+                        if (metaData == null)
+                        {
+                            metaData = new RequestMetaData();
+                        }
+                        metaData.RequestId = model.RequestId;
+                    }
+                }
+
+                if (metaData?.RequestId != null)
+                    request.Headers.Add("X-CorePro-RequestId", metaData?.RequestId.ToString());
+
                 var bodyString = new JsonSerializer().Serialize(body);
                 var bytes = Encoding.UTF8.GetBytes(bodyString);
                 request.ContentLength = bytes.Length;
@@ -335,14 +358,14 @@ namespace CorePro.SDK.Utils
 
                 request.KeepAlive = true;
 
-                Logger.Write(request, bodyString, userDefinedObjectForLogging);
+                Logger.Write(request, bodyString, userDefinedObjectForLogging, metaData);
 
-                return send<TResponse>(request, connection, "json", bodyString, userDefinedObjectForLogging);
+                return send<TResponse>(request, connection, "json", bodyString, userDefinedObjectForLogging, metaData);
 
             }
             catch (Exception ex)
             {
-                Logger.Write(ex, null, userDefinedObjectForLogging);
+                Logger.Write(ex, null, userDefinedObjectForLogging, metaData);
                 throw;
             }
 
@@ -354,7 +377,7 @@ namespace CorePro.SDK.Utils
         #region Async methods
 
 
-        private async static Task<Envelope<TResponse>> sendAsync<TResponse>(CancellationToken cancellationToken, HttpWebRequest req, Connection authToken, string format, string requestBody, object userDefinedObjectForLogging) where TResponse : class
+        private async static Task<Envelope<TResponse>> sendAsync<TResponse>(CancellationToken cancellationToken, HttpWebRequest req, Connection authToken, string format, string requestBody, object userDefinedObjectForLogging, RequestMetaData metaData) where TResponse : class
         {
             // async/await paradigm does not allow lambda expressions. so we use the statsCallback() function instead.
             var rv = await Stats.RecordAsync<TResponse>(cancellationToken, async () => 
@@ -363,7 +386,7 @@ namespace CorePro.SDK.Utils
                     try
                     {
                         response = (HttpWebResponse)(await req.GetResponseAsync());
-                        return await parseResponseAsync<TResponse>(cancellationToken, req, response, format, requestBody, userDefinedObjectForLogging);
+                        return await parseResponseAsync<TResponse>(cancellationToken, req, response, format, requestBody, userDefinedObjectForLogging, metaData);
                     }
                     catch (WebException we)
                     {
@@ -373,14 +396,14 @@ namespace CorePro.SDK.Utils
                             // note: the follwing will always throw an ApiException.
                             //       we use it just to parse the errors nicely.
                             // also -- you cannot use await within an exception handler, so we use the synchronous version here.
-                            parseResponse<object>(req, response, format, requestBody, userDefinedObjectForLogging);
+                            parseResponse<object>(req, response, format, requestBody, userDefinedObjectForLogging, metaData);
                             return null; // to satisfy compiler
                         }
                         else
                         {
                             // probably invalid url. just rethrow so caller can deal with it.
                             try {
-                                return handleGracefully<TResponse>((int)we.Status, 50000 + (int)we.Status, we.Message, requestBody, null);
+                                return handleGracefully<TResponse>((int)we.Status, 50000 + (int)we.Status, we.Message, requestBody, null, metaData);
                             }
                             catch (CoreProApiException)
                             {
@@ -400,7 +423,7 @@ namespace CorePro.SDK.Utils
         }
 
 
-        private async static Task<Envelope<TResponse>> parseResponseAsync<TResponse>(CancellationToken cancellationToken, HttpWebRequest req, HttpWebResponse response, string format, string requestBody, object userDefinedObjectForLogging) where TResponse : class
+        private async static Task<Envelope<TResponse>> parseResponseAsync<TResponse>(CancellationToken cancellationToken, HttpWebRequest req, HttpWebResponse response, string format, string requestBody, object userDefinedObjectForLogging, RequestMetaData metaData) where TResponse : class
         {
 
             var code = response.StatusCode;
@@ -503,12 +526,12 @@ namespace CorePro.SDK.Utils
             }
             catch (Exception ex)
             {
-                Logger.Write(ex, null, userDefinedObjectForLogging);
+                Logger.Write(ex, null, userDefinedObjectForLogging, metaData);
                 throw;
             }
             finally
             {
-                Logger.Write(response, responseBody, userDefinedObjectForLogging);
+                Logger.Write(response, responseBody, userDefinedObjectForLogging, metaData);
             }
             return null;
         }
@@ -520,7 +543,7 @@ namespace CorePro.SDK.Utils
         /// <param name="relativeUrl"></param>
         /// <param name="connection">Info to put into the Authorization header.</param>
         /// <returns></returns>
-        public async static Task<Envelope<TResponse>> GetAsync<TResponse>(CancellationToken cancellationToken, string relativeUrl, Connection connection, object userDefinedObject) where TResponse : class
+        public async static Task<Envelope<TResponse>> GetAsync<TResponse>(CancellationToken cancellationToken, string relativeUrl, Connection connection, object userDefinedObject, RequestMetaData metaData = null) where TResponse : class
         {
             try
             {
@@ -536,18 +559,21 @@ namespace CorePro.SDK.Utils
                 if (connection != null)
                     req.Headers.Add("Authorization", connection.HeaderValue);
 
-                await Logger.WriteAsync(cancellationToken, req, null, userDefinedObject);
-                return await sendAsync<TResponse>(cancellationToken, req, connection, "json", null, userDefinedObject);
+                if (metaData?.RequestId != null)
+                    req.Headers.Add("X-CorePro-RequestId", metaData?.RequestId.ToString());
+
+                await Logger.WriteAsync(cancellationToken, req, null, userDefinedObject, metaData);
+                return await sendAsync<TResponse>(cancellationToken, req, connection, "json", null, userDefinedObject, metaData);
             }
             catch (Exception ex)
             {
-                Logger.Write(ex, null, userDefinedObject);
+                Logger.Write(ex, null, userDefinedObject, metaData);
                 throw;
             }
 
         }
 
-        public async static Task<Envelope<string>> DownloadAsync(CancellationToken cancellationToken, string relativeUrl, Connection connection, object userDefinedObjectForLogging = null)
+        public async static Task<Envelope<string>> DownloadAsync(CancellationToken cancellationToken, string relativeUrl, Connection connection, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             try
             {
@@ -565,13 +591,20 @@ namespace CorePro.SDK.Utils
                 if (connection != null)
                     req.Headers.Add("Authorization", connection.HeaderValue);
 
-                await Logger.WriteAsync(cancellationToken, req, null, userDefinedObjectForLogging);
+                if (metaData != null)
+                {
+                    if (metaData.RequestId != null)
+                        req.Headers.Add("X-CorePro-RequestId", metaData.RequestId.ToString());
+                }
 
-                return await sendAsync<string>(cancellationToken, req, connection, "csv", null, userDefinedObjectForLogging);
+
+                await Logger.WriteAsync(cancellationToken, req, null, userDefinedObjectForLogging, metaData);
+
+                return await sendAsync<string>(cancellationToken, req, connection, "csv", null, userDefinedObjectForLogging, metaData);
             }
             catch (Exception ex)
             {
-                Logger.Write(ex, null, userDefinedObjectForLogging);
+                Logger.Write(ex, null, userDefinedObjectForLogging, metaData);
                 throw;
             }
 
@@ -586,7 +619,7 @@ namespace CorePro.SDK.Utils
         /// <param name="connection">Info to put into the Authorization header.</param>
         /// <param name="body"></param>
         /// <returns></returns>
-        public async static Task<Envelope<TResponse>> PostAsync<TResponse>(CancellationToken cancellationToken, string relativeUrl, Connection connection, object body, object userDefinedObjectForLogging) where TResponse : class
+        public async static Task<Envelope<TResponse>> PostAsync<TResponse>(CancellationToken cancellationToken, string relativeUrl, Connection connection, object body, object userDefinedObjectForLogging, RequestMetaData metaData = null) where TResponse : class
         {
             try
             {
@@ -603,6 +636,19 @@ namespace CorePro.SDK.Utils
                 if (connection != null)
                     request.Headers.Add("Authorization", connection.HeaderValue);
 
+                if (metaData?.RequestId == null)
+                {
+                    var model = body as ModelBase;
+                    if (model != null)
+                    {
+                        metaData = new RequestMetaData();
+                        metaData.RequestId = model.RequestId;
+                    }
+                }
+
+                if (metaData?.RequestId != null)
+                    request.Headers.Add("X-CorePro-RequestId", metaData?.RequestId.ToString());
+
                 var bodyString = new JsonSerializer().Serialize(body);
                 var bytes = Encoding.UTF8.GetBytes(bodyString);
                 request.ContentLength = bytes.Length;
@@ -614,14 +660,14 @@ namespace CorePro.SDK.Utils
 
                 request.KeepAlive = true;
 
-                await Logger.WriteAsync(cancellationToken, request, bodyString, userDefinedObjectForLogging);
+                await Logger.WriteAsync(cancellationToken, request, bodyString, userDefinedObjectForLogging, metaData);
 
-                return await sendAsync<TResponse>(cancellationToken, request, connection, "json", bodyString, userDefinedObjectForLogging);
+                return await sendAsync<TResponse>(cancellationToken, request, connection, "json", bodyString, userDefinedObjectForLogging, metaData);
 
             }
             catch (Exception ex)
             {
-                Logger.Write(ex, null, userDefinedObjectForLogging);
+                Logger.Write(ex, null, userDefinedObjectForLogging, metaData);
                 throw;
             }
 

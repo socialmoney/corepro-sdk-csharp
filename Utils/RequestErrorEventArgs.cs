@@ -12,6 +12,8 @@ namespace CorePro.SDK.Utils
         public dynamic Envelope { get; set; }  // note this guy is dynamic to ease caller's implementation.  Otherwise everything must be generic types, and that gets difficult when trying to handle all different types.
         public bool IsHandled {  get; set; }
 
+        public Guid? RequestId { get; set; }
+
         public int Status
         {
             get

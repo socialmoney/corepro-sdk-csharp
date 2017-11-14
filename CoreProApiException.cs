@@ -20,6 +20,11 @@ namespace CorePro.SDK
         public int Status { get; private set; }
 
         /// <summary>
+        /// The RequestId (aka "IncidentId") associated with the request.  This is used primarily for troubleshooting purposes.  Any errors within CorePro for a given request will capture this value, allowing you to tie your system's logs with CorePro's logs for a specific request.  If no value is provided at request time, one is automatically assigned.
+        /// </summary>
+        public Guid? RequestId { get; private set; }
+
+        /// <summary>
         /// Gets the exact string of characters returned in the body portion of the HTTP response from the CorePro server.
         /// </summary>
         public string RawResponseBody { get; private set; }
@@ -30,12 +35,13 @@ namespace CorePro.SDK
             this.Status = -1;
         }
 
-        public CoreProApiException(List<Error> errors, int status, string body)
-            : base("See Errors property for list of error details.")
+        public CoreProApiException(List<Error> errors, int status, string body, Guid? requestId = null)
+            : base(errors?.Count > 0 ? errors[0].Message : "No error message specified.")
         {
             this.Errors = errors;
             this.Status = status;
             this.RawResponseBody = body;
+            this.RequestId = requestId;
         }
 
         public string GetFirstErrorMessage()

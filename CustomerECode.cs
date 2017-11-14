@@ -1,4 +1,5 @@
-﻿using CorePro.SDK.Utils;
+﻿using CorePro.SDK.Models;
+using CorePro.SDK.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,51 +29,56 @@ namespace CorePro.SDK
         public string Status { get; set; }
         public DateTimeOffset? PurchaseDate { get; set; }
 
-        public CustomerECode()
-            : base()
+        public CustomerECode() : base()
         {
         }
 
-        public CustomerECode(int? customerId, int? customerECodeId)
-            : this()
+        public CustomerECode(RequestMetaData metaData)
+            : base(metaData)
+        {
+        }
+
+        public CustomerECode(int? customerId, int? customerECodeId, RequestMetaData metaData = null)
+            : this(metaData)
         {
             this.CustomerId = customerId;
             this.CustomerECodeId = customerECodeId;
         }
         #region Synchronous
-        public static CustomerECode Get(int? customerId, int? customerECodeId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static CustomerECode Get(int? customerId, int? customerECodeId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return new CustomerECode(customerId, customerECodeId).Get(connection, userDefinedObjectForLogging);
+            return new CustomerECode(customerId, customerECodeId, metaData).Get(connection, userDefinedObjectForLogging, metaData);
         }
 
-        public virtual CustomerECode Get(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual CustomerECode Get(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<CustomerECode>(String.Format("ecode/get/{0}/{1}", this.CustomerId, this.CustomerECodeId), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<CustomerECode>(String.Format("ecode/get/{0}/{1}", this.CustomerId, this.CustomerECodeId), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             return rv;
         }
 
-        public static List<CustomerECode> List(int? customerId, int? customerECodeId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static List<CustomerECode> List(int? customerId, int? customerECodeId = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return new CustomerECode(customerId, customerECodeId).List(connection, userDefinedObjectForLogging);
+            return new CustomerECode(customerId, customerECodeId, metaData).List(connection, userDefinedObjectForLogging, metaData);
         }
 
-        public virtual List<CustomerECode> List(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual List<CustomerECode> List(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Get<List<CustomerECode>>(String.Format("ecode/list/{0}", this.CustomerId), connection, userDefinedObjectForLogging);
+            var rv = Requestor.Get<List<CustomerECode>>(String.Format("ecode/list/{0}", this.CustomerId), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             return rv;
         }
 
-        public static CustomerECode Purchase(int? customerId, int? programECodeId = null, decimal? amount = null, int? fromAccountId = null, int? cashBoostAccountId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static CustomerECode Purchase(int? customerId, int? programECodeId = null, decimal? amount = null, int? fromAccountId = null, int? cashBoostAccountId = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var ec = new CustomerECode();
+            var ec = new CustomerECode(metaData);
             ec.CustomerId = customerId;
             ec.ProgramECodeId = programECodeId;
             ec.PurchaseAmount = amount;
             ec.FromAccountId = fromAccountId;
             ec.CashBoostAccountId = cashBoostAccountId;
-            return ec.Purchase(connection, userDefinedObjectForLogging);
+            return ec.Purchase(connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -80,23 +86,23 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public virtual CustomerECode Purchase(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual CustomerECode Purchase(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Post<CustomerECode>("ecode/purchase", connection, this, userDefinedObjectForLogging);
+            var rv = Requestor.Post<CustomerECode>("ecode/purchase", connection, this, userDefinedObjectForLogging, metaData);
             //var newEcode = CustomerECode.Get(this.CustomerId, (int)rv.customerECodeId, connection, userDefinedObjectForLogging);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv;
         }
 
-        public static CustomerECode Reissue(int? customerId, int? programECodeId = null, int? customerECodeId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public static CustomerECode Reissue(int? customerId, int? programECodeId = null, int? customerECodeId = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var ec = new CustomerECode();
+            var ec = new CustomerECode(metaData);
             ec.CustomerId = customerId;
             ec.ProgramECodeId = programECodeId;
             ec.CustomerECodeId = customerECodeId;
-            return ec.Purchase(connection, userDefinedObjectForLogging);
+            return ec.Purchase(connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -104,10 +110,10 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public virtual CustomerECode Reissue(Connection connection = null, object userDefinedObjectForLogging = null)
+        public virtual CustomerECode Reissue(Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = Requestor.Post<CustomerECode>("ecode/reissue", connection, this, userDefinedObjectForLogging);
+            var rv = Requestor.Post<CustomerECode>("ecode/reissue", connection, this, userDefinedObjectForLogging, metaData);
             //var newEcode = CustomerECode.Get(this.CustomerId, (int)rv.customerECodeId, connection, userDefinedObjectForLogging);
             if (rv != null)
                 this.RequestId = rv.RequestId;
@@ -123,39 +129,40 @@ namespace CorePro.SDK
 
 
         #region Async
-        public async static Task<CustomerECode> GetAsync(CancellationToken cancellationToken, int? customerId, int? customerECodeId, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<CustomerECode> GetAsync(CancellationToken cancellationToken, int? customerId, int? customerECodeId, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return await new CustomerECode(customerId, customerECodeId).GetAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await new CustomerECode(customerId, customerECodeId, metaData).GetAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public async virtual Task<CustomerECode> GetAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<CustomerECode> GetAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<CustomerECode>(cancellationToken, String.Format("ecode/get/{0}/{1}", this.CustomerId, this.CustomerECodeId), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<CustomerECode>(cancellationToken, String.Format("ecode/get/{0}/{1}", this.CustomerId, this.CustomerECodeId), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             return rv.Data;
         }
 
-        public async static Task<List<CustomerECode>> ListAsync(CancellationToken cancellationToken, int? customerId, int? customerECodeId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<List<CustomerECode>> ListAsync(CancellationToken cancellationToken, int? customerId, int? customerECodeId = null, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            return await new CustomerECode(customerId, customerECodeId).ListAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await new CustomerECode(customerId, customerECodeId, metaData).ListAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
-        public async virtual Task<List<CustomerECode>> ListAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<List<CustomerECode>> ListAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.GetAsync<List<CustomerECode>>(cancellationToken, String.Format("ecode/list/{0}", this.CustomerId), connection, userDefinedObjectForLogging);
+            var rv = await Requestor.GetAsync<List<CustomerECode>>(cancellationToken, String.Format("ecode/list/{0}", this.CustomerId), connection, userDefinedObjectForLogging, metaData ?? this.MetaData);
             return rv.Data;
         }
 
-        public async static Task<CustomerECode> PurchaseAsync(CancellationToken cancellationToken, int? customerId, int? programECodeId = null, decimal? amount = null, int? fromAccountId = null, int? cashBoostAccountId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<CustomerECode> PurchaseAsync(CancellationToken cancellationToken, int? customerId, int? programECodeId = null, decimal? amount = null, int? fromAccountId = null, int? cashBoostAccountId = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var ec = new CustomerECode();
+            var ec = new CustomerECode(metaData);
             ec.CustomerId = customerId;
             ec.ProgramECodeId = programECodeId;
             ec.PurchaseAmount = amount;
             ec.FromAccountId = fromAccountId;
             ec.CashBoostAccountId = cashBoostAccountId;
-            return await ec.PurchaseAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await ec.PurchaseAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -163,23 +170,24 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public async virtual Task<CustomerECode> PurchaseAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<CustomerECode> PurchaseAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.PostAsync<CustomerECode>(cancellationToken, "ecode/purchase", connection, this, userDefinedObjectForLogging);
+            var rv = await Requestor.PostAsync<CustomerECode>(cancellationToken, "ecode/purchase", connection, this, userDefinedObjectForLogging, metaData);
             //var newEcode = CustomerECode.Get(this.CustomerId, (int)rv.customerECodeId, connection, userDefinedObjectForLogging);
             if (rv != null)
                 this.RequestId = rv.RequestId;
             return rv.Data;
         }
 
-        public async static Task<CustomerECode> ReissueAsync(CancellationToken cancellationToken, int? customerId, int? programECodeId = null, int? customerECodeId = null, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async static Task<CustomerECode> ReissueAsync(CancellationToken cancellationToken, int? customerId, int? programECodeId = null, int? customerECodeId = null, 
+            Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
-            var ec = new CustomerECode();
+            var ec = new CustomerECode(metaData);
             ec.CustomerId = customerId;
             ec.ProgramECodeId = programECodeId;
             ec.CustomerECodeId = customerECodeId;
-            return await ec.PurchaseAsync(cancellationToken, connection, userDefinedObjectForLogging);
+            return await ec.PurchaseAsync(cancellationToken, connection, userDefinedObjectForLogging, metaData);
         }
 
         /// <summary>
@@ -187,10 +195,10 @@ namespace CorePro.SDK
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public async virtual Task<CustomerECode> ReissueAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null)
+        public async virtual Task<CustomerECode> ReissueAsync(CancellationToken cancellationToken, Connection connection = null, object userDefinedObjectForLogging = null, RequestMetaData metaData = null)
         {
             connection = connection ?? Connection.CreateFromConfig();
-            var rv = await Requestor.PostAsync<CustomerECode>(cancellationToken, "ecode/reissue", connection, this, userDefinedObjectForLogging);
+            var rv = await Requestor.PostAsync<CustomerECode>(cancellationToken, "ecode/reissue", connection, this, userDefinedObjectForLogging, metaData);
             //var newEcode = CustomerECode.Get(this.CustomerId, (int)rv.customerECodeId, connection, userDefinedObjectForLogging);
             if (rv != null)
                 this.RequestId = rv.RequestId;
