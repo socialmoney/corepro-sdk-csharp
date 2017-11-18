@@ -13,6 +13,8 @@
     <PackageIconUrl>https://docs.corepro.io/Content/sdk_icon_corepro.png</PackageIconUrl>
     <PackageProjectUrl>https://nuget.org/packages/CorePro.SDK</PackageProjectUrl>
     <PackageLicenseUrl>http://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Converted to .Net Standard 2.0</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
