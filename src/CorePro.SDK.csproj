@@ -3,8 +3,8 @@
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <AssemblyName>CorePro.SDK.Core</AssemblyName>
-    <PackageId>CorePro.SDK.Core</PackageId>
+    <AssemblyName>CorePro.SDK</AssemblyName>
+    <PackageId>CorePro.SDK</PackageId>
     <Authors>Q2Open</Authors>
     <Copyright>Copyright 2017 Q2Open</Copyright>
     <Description>Visit http://docs.corepro.io for more information.</Description>
