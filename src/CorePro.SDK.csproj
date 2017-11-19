@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>2.0.0</VersionPrefix>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <AssemblyName>CorePro.SDK</AssemblyName>
+    <PackageId>CorePro.SDK</PackageId>
+    <Authors>Q2Open</Authors>
+    <Copyright>Copyright 2017 Q2Open</Copyright>
+    <Description>Visit http://docs.corepro.io for more information.</Description>
+    <DebugType>full</DebugType>
+    <PackageTags>CorePro .NET API SDK 'Social Money' Q2 Q2Open</PackageTags>
+    <PackageIconUrl>https://docs.corepro.io/Content/sdk_icon_corepro.png</PackageIconUrl>
+    <PackageProjectUrl>https://nuget.org/packages/CorePro.SDK</PackageProjectUrl>
+    <PackageLicenseUrl>http://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Converted to .Net Standard 2.0</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.*" />
+  </ItemGroup>
+
+</Project>

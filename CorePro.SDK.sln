@@ -1,40 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CorePro.SDK", "CorePro.SDK.csproj", "{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CorePro.SDK", "src\CorePro.SDK.csproj", "{121C3047-F04A-4E64-B7D2-14C30F65655C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{01221F3F-3C6A-4F5B-BCD9-0FDC31F710B0}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug-Pilot|Any CPU = Debug-Pilot|Any CPU
-		Debug-Prod|Any CPU = Debug-Prod|Any CPU
-		Debug-Sandbox|Any CPU = Debug-Sandbox|Any CPU
 		Release|Any CPU = Release|Any CPU
-		Release-Pilot|Any CPU = Release-Pilot|Any CPU
-		Release-Prod|Any CPU = Release-Prod|Any CPU
-		Release-Sandbox|Any CPU = Release-Sandbox|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Debug-Pilot|Any CPU.ActiveCfg = Debug-Pilot|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Debug-Pilot|Any CPU.Build.0 = Debug-Pilot|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Debug-Prod|Any CPU.ActiveCfg = Debug-Prod|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Debug-Prod|Any CPU.Build.0 = Debug-Prod|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Debug-Sandbox|Any CPU.ActiveCfg = Debug-Sandbox|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Debug-Sandbox|Any CPU.Build.0 = Debug-Sandbox|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Release-Pilot|Any CPU.ActiveCfg = Release-Pilot|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Release-Pilot|Any CPU.Build.0 = Release-Pilot|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Release-Prod|Any CPU.ActiveCfg = Release-Prod|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Release-Prod|Any CPU.Build.0 = Release-Prod|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Release-Sandbox|Any CPU.ActiveCfg = Release-Sandbox|Any CPU
-		{54BEA6BD-65A4-48BD-9AB1-16FE76FD9004}.Release-Sandbox|Any CPU.Build.0 = Release-Sandbox|Any CPU
+		{121C3047-F04A-4E64-B7D2-14C30F65655C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{121C3047-F04A-4E64-B7D2-14C30F65655C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{121C3047-F04A-4E64-B7D2-14C30F65655C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{121C3047-F04A-4E64-B7D2-14C30F65655C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2BF13815-CA16-4DA8-9AAC-805E18898E94}
 	EndGlobalSection
 EndGlobal
